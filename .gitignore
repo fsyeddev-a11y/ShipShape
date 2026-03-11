@@ -113,3 +113,5 @@ vendor/
 
 # Vite PWA dev artifacts
 web/dev-dist/
+
+extracted_text.txt
