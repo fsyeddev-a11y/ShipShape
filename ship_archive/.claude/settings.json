@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_evaluate",
+      "Bash(npx lighthouse:*)",
+      "Bash(npx pa11y:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/fsyed/Documents/ShipShape/ship/audit"
+    ]
+  }
+}
