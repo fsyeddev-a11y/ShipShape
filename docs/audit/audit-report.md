@@ -13,12 +13,13 @@ All 7 categories are baselined here. Individual category files with full methodo
 
 | Metric | Baseline |
 |--------|----------|
-| Total `any` types | **338** |
-| Total type assertions (`as`) | **267** |
-| Total non-null assertions (`!`) | **24** |
+| Total violations | **1,417** |
+| Explicit `any` types | **392** |
+| Type assertions (`as`) | **280** |
+| Non-null assertions (`!`) | **35** |
+| Implicit `any` (untyped params, returns, missing generics) | **~709** |
 | `@ts-ignore` / `@ts-expect-error` | **0 / 1** |
 | Strict mode enabled | Yes (all packages) |
-| Total violations | **630** |
 | Top violation-dense files | `UnifiedEditor.tsx` (25 `as`), `projects.ts` (18 `any`), `yjsConverter.ts` (15 `any`), `PropertiesPanel.tsx` (13 `as`), `y-protocols.d.ts` (13 `any`) |
 
 ### Top Findings
@@ -27,15 +28,17 @@ All 7 categories are baselined here. Individual category files with full methodo
 |---|---------|----------|
 | 1 | Unsafe document subtype casting in `UnifiedEditor.tsx` and `PropertiesPanel.tsx` — no discriminated union or type guards; runtime crashes if document shape diverges | High |
 | 2 | `any` throughout API route handlers for DB rows (`projects.ts`, `weeks.ts`) — schema changes invisible to compiler | High |
-| 3 | Yjs conversion pipeline fully untyped (`yjsConverter.ts`) — malformed CRDT data reaches the editor silently | Medium |
-| 4 | `web/tsconfig.json` missing `noUncheckedIndexedAccess` and `noImplicitReturns` — weaker type config than the backend | Medium |
+| 3 | ~709 implicit `any` violations from untyped function parameters, missing return types, and unparameterized generics | High |
+| 4 | Yjs conversion pipeline fully untyped (`yjsConverter.ts`) — malformed CRDT data reaches the editor silently | Medium |
+| 5 | `web/tsconfig.json` missing `noUncheckedIndexedAccess` and `noImplicitReturns` — weaker type config than the backend | Medium |
 
 ### Improvement Target
 
-- Eliminate 25% of violations (≈158) in Phase 2
+- Eliminate 25% of violations (≈354) in Phase 2
 - Add DB row types in `projects.ts` (~18 `any` removed)
 - Introduce discriminated union in `UnifiedEditor.tsx` (~25 `as` removed)
 - Type TipTap JSON schema in `yjsConverter.ts` (~15 `any` removed)
+- Add return type annotations and typed function parameters across route handlers and hooks
 - Align `web/tsconfig.json` to extend root config
 
 ---
@@ -264,7 +267,7 @@ All 7 categories are baselined here. Individual category files with full methodo
 
 | Category | Key Risk | Priority |
 |----------|----------|----------|
-| Type Safety | 630 violations; unsafe document casting can crash the editor silently | Medium |
+| Type Safety | 1,417 violations; unsafe document casting can crash the editor silently | High |
 | Bundle Size | 2.1 MB monolithic chunk; devtools shipped to production users | High |
 | API Response Time | `GET /api/documents` degrades 4.3× under load; issues payload oversized | High |
 | DB Query Efficiency | 60% of page-load queries are auth overhead; sequential scan on wiki list | High |

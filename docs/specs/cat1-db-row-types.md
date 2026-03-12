@@ -44,5 +44,5 @@ Define typed interfaces for each DB query result and apply them to `pool.query<T
 
 ## Audit Targets Addressed
 
-- Contributes ~36 violations toward the 158-violation (25%) reduction target
+- Contributes ~36 violations toward the 354-violation (25% of 1,417) reduction target
 - Addresses Finding 2: schema changes become compiler-visible

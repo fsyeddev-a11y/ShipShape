@@ -41,7 +41,7 @@ Specs derived from the [audit report](../../audit/audit-report.md) and previous 
 | 4.4 | [Assignee Functional Index](cat4-assignee-functional-index.md) | Add btree index on (properties->>'assignee_id') | Medium |
 | 4.5 | [Scope-Changes N+1 Batch](cat4-scope-changes-batch.md) | Replace loop query with WHERE id = ANY($1) | Medium |
 
-## Category 1 — Type Safety
+## Category 1 — Type Safety (1,417 total violations)
 
 | # | Spec | Summary | Severity |
 |---|------|---------|----------|
@@ -58,6 +58,7 @@ Specs derived from the [audit report](../../audit/audit-report.md) and previous 
 | 6.2 | [WebSocket Backoff + 429 Handling](cat6-ws-backoff-429.md) | Exponential backoff for useRealtimeEvents + 429 awareness | High |
 | 6.3 | [WS Rate Limit Connection Tracking](cat6-ws-rate-limit-tracking.md) | Remove closed connections from rate limit counter | High |
 | 6.4 | [Title maxLength Guard](cat6-title-maxlength.md) | Add maxLength={255} + character counter to title textarea | Medium |
+| 6.5 | [Silent Save Failure Handling](cat6-silent-save-failure.md) | Surface ROLLBACK errors + DB save failures to users | Medium |
 
 ## Category 7 — Accessibility
 

@@ -49,4 +49,4 @@ Add TipTap JSON schema types to the Yjs converter.
 
 ## Audit Targets Addressed
 
-- Contributes ~15 violations toward the 158-violation (25%) reduction target
+- Contributes ~15 violations toward the 354-violation (25% of 1,417) reduction target

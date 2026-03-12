@@ -59,5 +59,5 @@ Introduce a discriminated union on `document_type` in the shared types package, 
 
 ## Audit Targets Addressed
 
-- Contributes ~38 violations toward the 158-violation (25%) reduction target
+- Contributes ~38 violations toward the 354-violation (25% of 1,417) reduction target
 - Eliminates Finding 1: runtime crash risk from unsafe casting
