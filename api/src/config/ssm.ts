@@ -40,6 +40,11 @@ export async function loadProductionSecrets(): Promise<void> {
     return; // Use .env files for local dev
   }
 
+  if (process.env.SKIP_SSM === 'true') {
+    console.log('SKIP_SSM=true, using environment variables directly (non-AWS deployment)');
+    return;
+  }
+
   const environment = process.env.ENVIRONMENT || 'prod';
   const basePath = `/ship/${environment}`;
 
