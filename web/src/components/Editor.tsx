@@ -8,8 +8,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import { ResizableImage } from './editor/ResizableImage';
 import Dropcursor from '@tiptap/extension-dropcursor';
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { common, createLowlight } from 'lowlight';
+import type CodeBlockLowlightType from '@tiptap/extension-code-block-lowlight';
 import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableCell from '@tiptap/extension-table-cell';
@@ -28,8 +27,7 @@ import { createSlashCommands } from './editor/SlashCommands';
 import { DocumentEmbed } from './editor/DocumentEmbed';
 import { DragHandleExtension } from './editor/DragHandle';
 import { createMentionExtension } from './editor/MentionExtension';
-import { ImageUploadExtension } from './editor/ImageUpload';
-import { FileAttachmentExtension } from './editor/FileAttachment';
+// FileAttachment and ImageUpload are lazy-loaded (see getUploadExtensions)
 import { DetailsExtension, DetailsSummary, DetailsContent } from './editor/DetailsExtension';
 import { EmojiExtension } from './editor/EmojiExtension';
 import { TableOfContentsExtension } from './editor/TableOfContents';
@@ -42,8 +40,38 @@ import { useCommentsQuery, useCreateComment, useUpdateComment } from '@/hooks/us
 import { BubbleMenu } from '@tiptap/react';
 import 'tippy.js/dist/tippy.css';
 
-// Create lowlight instance with common languages
-const lowlight = createLowlight(common);
+// Lazy-loaded upload extensions (FileAttachment + ImageUpload)
+let uploadExtensionsPromise: Promise<{ ImageUploadExtension: any; FileAttachmentExtension: any }> | null = null;
+function getUploadExtensions() {
+  if (!uploadExtensionsPromise) {
+    uploadExtensionsPromise = Promise.all([
+      import('./editor/ImageUpload'),
+      import('./editor/FileAttachment'),
+    ]).then(([imageUploadMod, fileAttachmentMod]) => ({
+      ImageUploadExtension: imageUploadMod.ImageUploadExtension,
+      FileAttachmentExtension: fileAttachmentMod.FileAttachmentExtension,
+    }));
+  }
+  return uploadExtensionsPromise;
+}
+
+// Lazy-loaded code block highlighting
+let codeBlockExtensionPromise: Promise<ReturnType<typeof CodeBlockLowlightType.configure>> | null = null;
+function getCodeBlockExtension() {
+  if (!codeBlockExtensionPromise) {
+    codeBlockExtensionPromise = Promise.all([
+      import('@tiptap/extension-code-block-lowlight'),
+      import('lowlight'),
+    ]).then(([{ default: CodeBlockLowlight }, { common, createLowlight }]) => {
+      const lowlight = createLowlight(common);
+      return CodeBlockLowlight.configure({
+        lowlight,
+        HTMLAttributes: { class: 'code-block-lowlight' },
+      });
+    });
+  }
+  return codeBlockExtensionPromise;
+}
 
 interface EditorProps {
   documentId: string;
@@ -502,6 +530,18 @@ export function Editor({
     };
   }, [documentId, userName, color, ydoc, roomPrefix, onBack, onDocumentConverted]);
 
+  // Lazy-load CodeBlockLowlight extension
+  const [codeBlockExt, setCodeBlockExt] = useState<ReturnType<typeof CodeBlockLowlightType.configure> | null>(null);
+  useEffect(() => {
+    getCodeBlockExtension().then(setCodeBlockExt);
+  }, []);
+
+  // Lazy-load FileAttachment + ImageUpload extensions
+  const [uploadExts, setUploadExts] = useState<{ ImageUploadExtension: any; FileAttachmentExtension: any } | null>(null);
+  useEffect(() => {
+    getUploadExtensions().then(setUploadExts);
+  }, []);
+
   // Create slash commands extension (memoized to avoid recreation)
   // documentId is in deps to ensure fresh AbortSignal when switching documents
   const slashCommandsExtension = useMemo(() => {
@@ -545,12 +585,7 @@ export function Editor({
       dropcursor: false,
       codeBlock: false, // Disable default code block to use CodeBlockLowlight
     }),
-    CodeBlockLowlight.configure({
-      lowlight,
-      HTMLAttributes: {
-        class: 'code-block-lowlight',
-      },
-    }),
+    ...(codeBlockExt ? [codeBlockExt] : []),
     Placeholder.configure({ placeholder }),
     Collaboration.configure({ document: ydoc }),
     Link.configure({
@@ -584,13 +619,15 @@ export function Editor({
         class: 'task-item',
       },
     }),
-    ImageUploadExtension.configure({
-      onUploadStart: () => {},
-      onUploadComplete: () => {},
-      onUploadError: (error) => console.error('Upload error:', error),
-      abortController: imageUploadAbortRef.current,
-    }),
-    FileAttachmentExtension,
+    ...(uploadExts ? [
+      uploadExts.ImageUploadExtension.configure({
+        onUploadStart: () => {},
+        onUploadComplete: () => {},
+        onUploadError: (error: Error) => console.error('Upload error:', error),
+        abortController: imageUploadAbortRef.current,
+      }),
+      uploadExts.FileAttachmentExtension,
+    ] : []),
     DocumentEmbed,
     DragHandleExtension,
     DetailsExtension,
@@ -624,7 +661,7 @@ export function Editor({
         class: 'prose prose-invert prose-sm max-w-none focus:outline-none min-h-[300px]',
       },
     },
-  }, [provider, documentType]);
+  }, [provider, documentType, codeBlockExt, uploadExts]);
 
   // Refs for stable comment callbacks (avoid re-render loops)
   const commentsRef = useRef(comments);
