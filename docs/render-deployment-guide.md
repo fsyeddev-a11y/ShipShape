@@ -77,8 +77,8 @@ Categories 3, 4, and 5 are backend-only changes — you can skip the web static 
 | Setting | Value |
 |---------|-------|
 | **Runtime** | Node |
-| **Build Command** | `pnpm install && pnpm build:shared && pnpm build:api` |
-| **Start Command** | `cd api && node dist/index.js` |
+| **Build Command** | `pnpm install && pnpm build:shared && cd api && pnpm build && node dist/db/migrate.js` |
+| **Start Command** | `node api/dist/index.js` |
 
 ### Environment Variables
 
@@ -99,7 +99,7 @@ Categories 3, 4, and 5 are backend-only changes — you can skip the web static 
 
 **`Cannot find module '/opt/render/project/src/dist/index.js'`**
 - **Cause:** Render runs the start command from the project root, but the compiled output is in `api/dist/`
-- **Fix:** Start command must be `cd api && node dist/index.js`, not `node dist/index.js`
+- **Fix:** Start command must be `node api/dist/index.js` (path from project root)
 
 **`npm error code EUNSUPPORTEDPROTOCOL` during build**
 - **Cause:** Render auto-detects npm, but the project uses pnpm with `workspace:*` protocol
