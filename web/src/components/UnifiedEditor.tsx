@@ -49,8 +49,8 @@ interface IssueDocument extends BaseDocument {
   assignee_id: string | null;
   assignee_name?: string | null;
   assignee_archived?: boolean;
-  program_id: string | null;
-  sprint_id: string | null;
+  program_id?: string | null;
+  sprint_id?: string | null;
   source?: 'internal' | 'external';
   rejection_reason?: string | null;
   converted_from_id?: string | null;
@@ -66,8 +66,8 @@ interface ProjectDocument extends BaseDocument {
   ease: number | null;
   ice_score?: number | null;
   color: string;
-  emoji: string | null;
-  program_id: string | null;
+  emoji?: string | null;
+  program_id?: string | null;
   owner?: { id: string; name: string; email: string } | null;
   owner_id?: string | null;
   // RACI fields
@@ -85,15 +85,39 @@ interface SprintDocument extends BaseDocument {
   start_date: string;
   end_date: string;
   status: 'planning' | 'active' | 'completed';
-  program_id: string | null;
+  program_id?: string | null;
   program_name?: string;
   issue_count?: number;
   completed_count?: number;
   plan?: string;
 }
 
-// Union type for all document types
-export type UnifiedDocument = WikiDocument | IssueDocument | ProjectDocument | SprintDocument | BaseDocument;
+// Program document
+interface ProgramDocument extends BaseDocument {
+  document_type: 'program';
+  color?: string;
+  emoji?: string | null;
+  owner_id?: string | null;
+  accountable_id?: string | null;
+}
+
+// Person document
+interface PersonDocument extends BaseDocument {
+  document_type: 'person';
+}
+
+// Weekly plan document
+interface WeeklyPlanDocument extends BaseDocument {
+  document_type: 'weekly_plan';
+}
+
+// Weekly retro document
+interface WeeklyRetroDocument extends BaseDocument {
+  document_type: 'weekly_retro';
+}
+
+// Union type for all document types - discriminated on document_type
+export type UnifiedDocument = WikiDocument | IssueDocument | ProjectDocument | SprintDocument | ProgramDocument | PersonDocument | WeeklyPlanDocument | WeeklyRetroDocument;
 
 // Sidebar data types
 interface WikiSidebarData {
@@ -206,21 +230,24 @@ export function UnifiedEditor({
 
   // Track missing required fields after type changes
   const missingFields = useMemo(() => {
-    const selectableType = document.document_type as SelectableDocumentType;
-    if (['wiki', 'issue', 'project', 'sprint'].includes(selectableType)) {
-      // Build properties object from document
+    const selectableType = document.document_type;
+    if (selectableType === 'wiki' || selectableType === 'issue' || selectableType === 'project' || selectableType === 'sprint') {
+      // Build properties object from document - include type-specific fields
       const props: Record<string, unknown> = {
         ...document.properties,
-        // Include top-level fields that might be required
-        state: (document as IssueDocument).state,
-        priority: (document as IssueDocument).priority,
-        impact: (document as ProjectDocument).impact,
-        confidence: (document as ProjectDocument).confidence,
-        ease: (document as ProjectDocument).ease,
-        start_date: (document as SprintDocument).start_date,
-        end_date: (document as SprintDocument).end_date,
-        status: (document as SprintDocument).status,
       };
+      if (document.document_type === 'issue') {
+        props.state = document.state;
+        props.priority = document.priority;
+      } else if (document.document_type === 'project') {
+        props.impact = document.impact;
+        props.confidence = document.confidence;
+        props.ease = document.ease;
+      } else if (document.document_type === 'sprint') {
+        props.start_date = document.start_date;
+        props.end_date = document.end_date;
+        props.status = document.status;
+      }
       return getMissingRequiredFields(selectableType, props);
     }
     return [];
@@ -240,9 +267,9 @@ export function UnifiedEditor({
     setIsChangingType(true);
     try {
       if (onTypeChange) {
-        await onTypeChange(newType as DocumentType);
+        await onTypeChange(newType);
       } else {
-        await onUpdate({ document_type: newType as DocumentType } as Partial<UnifiedDocument>);
+        await onUpdate({ document_type: newType } as Partial<UnifiedDocument>);
       }
     } finally {
       setIsChangingType(false);
@@ -275,11 +302,11 @@ export function UnifiedEditor({
   const isWeeklyDoc = document.document_type === 'weekly_plan' || document.document_type === 'weekly_retro';
 
   const weeklyReviewState = useWeeklyReviewActions(
-    isWeeklyDoc
+    (document.document_type === 'weekly_plan' || document.document_type === 'weekly_retro')
       ? {
           id: document.id,
-          document_type: document.document_type as 'weekly_plan' | 'weekly_retro',
-          properties: document.properties as { person_id?: string; project_id?: string; week_number?: number } | undefined,
+          document_type: document.document_type,
+          properties: document.properties,
         }
       : null
   );

@@ -233,9 +233,9 @@ function WeeklyDocumentSidebar({
   weeklyReviewState?: WeeklyReviewActionsState | null;
 }) {
   const docProperties = document.properties || {};
-  const weekNumber = docProperties.week_number as number | undefined;
-  const personId = docProperties.person_id as string | undefined;
-  const projectId = docProperties.project_id as string | undefined;
+  const weekNumber = docProperties.week_number;
+  const personId = docProperties.person_id;
+  const projectId = docProperties.project_id;
 
   const isRetro = document.document_type === 'weekly_retro';
   const isReviewMode = weeklyReviewState?.isReviewMode ?? false;
@@ -387,7 +387,7 @@ function WeeklyDocumentSidebar({
       {/* Content History Panel */}
       <ContentHistoryPanel
         documentId={document.id}
-        documentType={document.document_type as 'weekly_plan' | 'weekly_retro'}
+        documentType={document.document_type}
       />
     </div>
   );
@@ -460,15 +460,13 @@ export function PropertiesPanel({
     if (!user?.id) return false;
 
     // Check document's accountable_id (used by projects)
-    const docWithAccountable = document as { accountable_id?: string | null };
-    if (docWithAccountable.accountable_id === user.id) return true;
+    if ('accountable_id' in document && document.accountable_id === user.id) return true;
 
     // For sprints, also check program_accountable_id (inherited from program)
     // and supervisor relationship (reports_to on the sprint owner's person document)
     if (document.document_type === 'sprint') {
-      const sprintDoc = document as SprintDocument;
-      if (sprintDoc.program_accountable_id === user.id) return true;
-      if (sprintDoc.owner_reports_to === user.id) return true;
+      if (document.program_accountable_id === user.id) return true;
+      if (document.owner_reports_to === user.id) return true;
     }
 
     return false;
@@ -500,7 +498,7 @@ export function PropertiesPanel({
         const wikiProps = panelProps as WikiPanelProps;
         return (
           <WikiSidebar
-            document={document as WikiDocument}
+            document={document}
             teamMembers={wikiProps.teamMembers || []}
             currentUserId={wikiProps.currentUserId}
             onUpdate={onUpdate as (updates: Partial<WikiDocument>) => Promise<void>}
@@ -512,7 +510,7 @@ export function PropertiesPanel({
         const issueProps = panelProps as IssuePanelProps;
         return (
           <IssueSidebar
-            issue={document as IssueDocument}
+            issue={document}
             teamMembers={issueProps.teamMembers || []}
             programs={issueProps.programs || []}
             projects={issueProps.projects || []}
@@ -533,7 +531,7 @@ export function PropertiesPanel({
         const projectProps = panelProps as ProjectPanelProps;
         return (
           <ProjectSidebar
-            project={document as ProjectDocument}
+            project={document}
             programs={projectProps.programs || []}
             people={projectProps.people || []}
             onUpdate={onUpdate as (updates: Partial<ProjectDocument>) => Promise<void>}
@@ -553,7 +551,7 @@ export function PropertiesPanel({
         const sprintProps = panelProps as SprintPanelProps;
         return (
           <WeekSidebar
-            sprint={document as SprintDocument}
+            sprint={document}
             onUpdate={onUpdate as (updates: Partial<SprintDocument>) => Promise<void>}
             highlightedFields={highlightedFields}
             people={sprintProps.people}
@@ -569,7 +567,7 @@ export function PropertiesPanel({
         const programProps = panelProps as ProgramPanelProps;
         return (
           <ProgramSidebar
-            program={document as ProgramDocument}
+            program={document}
             people={programProps.people || []}
             onUpdate={onUpdate as (updates: Partial<ProgramDocument>) => Promise<void>}
             highlightedFields={highlightedFields}
@@ -583,22 +581,23 @@ export function PropertiesPanel({
         // Names are fetched via WeeklyDocumentSidebar component
         return (
           <WeeklyDocumentSidebar
-            document={document as WeeklyPlanDocument | WeeklyRetroDocument}
+            document={document}
             weeklyReviewState={weeklyReviewState}
           />
         );
       }
 
-      default:
-        // TypeScript narrows to never here since all cases are handled
-        // Cast to BaseDocument to access document_type for the fallback display
+      default: {
+        // Exhaustiveness check — all cases are handled above
+        const _exhaustive: never = document;
         return (
           <div className="p-4">
             <p className="text-xs text-muted">
-              Document type: {(document as BaseDocument).document_type}
+              Unknown document type
             </p>
           </div>
         );
+      }
     }
   }, [document, panelProps, onUpdate, highlightedFields, canApprove, userNames, handleApprovalUpdate, weeklyReviewState]);
 

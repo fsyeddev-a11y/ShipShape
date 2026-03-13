@@ -212,9 +212,10 @@ export function ReviewsPage() {
     setData(prev => {
       if (!prev) return prev;
       const updated = { ...prev, reviews: { ...prev.reviews } };
-      updated.reviews[personId] = { ...updated.reviews[personId] };
-      updated.reviews[personId][weekNumber] = {
-        ...updated.reviews[personId][weekNumber],
+      const personReviews = { ...updated.reviews[personId] };
+      updated.reviews[personId] = personReviews;
+      personReviews[weekNumber] = {
+        ...personReviews[weekNumber]!,
         planApproval: {
           state: 'approved',
           approved_by: null,
@@ -245,9 +246,10 @@ export function ReviewsPage() {
     setData(prev => {
       if (!prev) return prev;
       const updated = { ...prev, reviews: { ...prev.reviews } };
-      updated.reviews[personId] = { ...updated.reviews[personId] };
-      updated.reviews[personId][weekNumber] = {
-        ...updated.reviews[personId][weekNumber],
+      const personReviews = { ...updated.reviews[personId] };
+      updated.reviews[personId] = personReviews;
+      personReviews[weekNumber] = {
+        ...personReviews[weekNumber]!,
         [approvalField]: { state: 'changes_requested', approved_by: null, approved_at: new Date().toISOString(), feedback },
       };
       return updated;
@@ -270,9 +272,10 @@ export function ReviewsPage() {
     setData(prev => {
       if (!prev) return prev;
       const updated = { ...prev, reviews: { ...prev.reviews } };
-      updated.reviews[personId] = { ...updated.reviews[personId] };
-      updated.reviews[personId][weekNumber] = {
-        ...updated.reviews[personId][weekNumber],
+      const personReviews = { ...updated.reviews[personId] };
+      updated.reviews[personId] = personReviews;
+      personReviews[weekNumber] = {
+        ...personReviews[weekNumber]!,
         reviewApproval: {
           state: 'approved',
           approved_by: null,
