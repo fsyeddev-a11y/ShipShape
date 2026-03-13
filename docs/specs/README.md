@@ -70,6 +70,17 @@ Specs derived from the [audit report](../../audit/audit-report.md) and previous 
 
 ---
 
+## Render Database Strategy
+
+Two PostgreSQL instances are required on Render:
+
+1. **Baseline DB** — Untouched, matches the original `master` code. Used for re-running benchmarks and comparing before/after metrics across all categories.
+2. **Working DB** — Shared across all category branches. Only Category 4 introduces DB schema changes (two additive indexes in specs 4.3 and 4.4), which are non-destructive and don't require rollback.
+
+All other categories (1, 2, 3, 5, 6, 7) are code-only changes and share the working DB safely.
+
+---
+
 ## Future Phase Specs
 
 | # | Spec | Summary | Category |

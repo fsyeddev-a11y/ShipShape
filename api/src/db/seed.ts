@@ -85,7 +85,7 @@ async function seed() {
       console.log('✅ Workspace created');
     }
 
-    // Team members to seed (dev user + 10 fake users)
+    // Team members to seed (dev user + 21 fake users = 22 total)
     const teamMembers = [
       { email: 'dev@ship.local', name: 'Dev User' },
       { email: 'alice.chen@ship.local', name: 'Alice Chen' },
@@ -98,6 +98,17 @@ async function seed() {
       { email: 'henry.patel@ship.local', name: 'Henry Patel' },
       { email: 'iris.nguyen@ship.local', name: 'Iris Nguyen' },
       { email: 'jack.brown@ship.local', name: 'Jack Brown' },
+      { email: 'kate.taylor@ship.local', name: 'Kate Taylor' },
+      { email: 'liam.wilson@ship.local', name: 'Liam Wilson' },
+      { email: 'maya.rodriguez@ship.local', name: 'Maya Rodriguez' },
+      { email: 'nathan.clark@ship.local', name: 'Nathan Clark' },
+      { email: 'olivia.thompson@ship.local', name: 'Olivia Thompson' },
+      { email: 'peter.wright@ship.local', name: 'Peter Wright' },
+      { email: 'quinn.davis@ship.local', name: 'Quinn Davis' },
+      { email: 'rachel.moore@ship.local', name: 'Rachel Moore' },
+      { email: 'sam.anderson@ship.local', name: 'Sam Anderson' },
+      { email: 'tina.jackson@ship.local', name: 'Tina Jackson' },
+      { email: 'victor.hall@ship.local', name: 'Victor Hall' },
     ];
 
     const passwordHash = await bcrypt.hash('admin123', 10);
@@ -199,6 +210,17 @@ async function seed() {
       'henry.patel@ship.local': ['carol.williams@ship.local'],
       'iris.nguyen@ship.local': ['carol.williams@ship.local'],
       'jack.brown@ship.local': ['carol.williams@ship.local'],
+      'kate.taylor@ship.local': ['alice.chen@ship.local'],
+      'liam.wilson@ship.local': ['alice.chen@ship.local'],
+      'maya.rodriguez@ship.local': ['bob.martinez@ship.local'],
+      'nathan.clark@ship.local': ['bob.martinez@ship.local'],
+      'olivia.thompson@ship.local': ['carol.williams@ship.local'],
+      'peter.wright@ship.local': ['carol.williams@ship.local'],
+      'quinn.davis@ship.local': ['alice.chen@ship.local'],
+      'rachel.moore@ship.local': ['bob.martinez@ship.local'],
+      'sam.anderson@ship.local': ['carol.williams@ship.local'],
+      'tina.jackson@ship.local': ['alice.chen@ship.local'],
+      'victor.hall@ship.local': ['bob.martinez@ship.local'],
     };
 
     // Build email → user_id map
@@ -282,11 +304,11 @@ async function seed() {
     // and weekly plans/retros all align consistently.
     // Uses names (not indices) because allUsers query order is non-deterministic.
     const programTeamNames: string[][] = [
-      ['Dev User', 'Emma Johnson'],      // Ship Core
-      ['Alice Chen', 'Frank Garcia'],    // Authentication
-      ['Grace Lee', 'Henry Patel'],      // API Platform
-      ['Carol Williams', 'David Kim'],   // Design System
-      ['Jack Brown', 'Iris Nguyen'],     // Infrastructure
+      ['Dev User', 'Emma Johnson', 'Kate Taylor', 'Liam Wilson'],      // Ship Core
+      ['Alice Chen', 'Frank Garcia', 'Maya Rodriguez', 'Quinn Davis'],  // Authentication
+      ['Grace Lee', 'Henry Patel', 'Nathan Clark', 'Rachel Moore'],     // API Platform
+      ['Carol Williams', 'David Kim', 'Olivia Thompson', 'Tina Jackson'], // Design System
+      ['Jack Brown', 'Iris Nguyen', 'Peter Wright', 'Sam Anderson'],    // Infrastructure
     ];
     const programTeams: Record<string, number[]> = {};
     programs.forEach((prog, idx) => {
@@ -620,16 +642,40 @@ async function seed() {
       { title: 'Create mobile app', state: 'backlog', sprintOffset: null, priority: 'low', estimate: 40 },
       { title: 'Add AI-powered suggestions', state: 'backlog', sprintOffset: null, priority: 'low', estimate: 16 },
       { title: 'Build integration with Slack', state: 'backlog', sprintOffset: null, priority: 'medium', estimate: 8 },
+      { title: 'Add drag-and-drop reordering', state: 'backlog', sprintOffset: null, priority: 'medium', estimate: 6 },
+      { title: 'Implement undo/redo system', state: 'backlog', sprintOffset: null, priority: 'medium', estimate: 8 },
+      { title: 'Build email digest notifications', state: 'backlog', sprintOffset: null, priority: 'low', estimate: 6 },
+      { title: 'Add multi-workspace support', state: 'backlog', sprintOffset: null, priority: 'high', estimate: 20 },
+      { title: 'Create data import wizard', state: 'backlog', sprintOffset: null, priority: 'medium', estimate: 10 },
+      { title: 'Implement custom fields', state: 'backlog', sprintOffset: null, priority: 'medium', estimate: 12 },
+      { title: 'Add time tracking integration', state: 'backlog', sprintOffset: null, priority: 'low', estimate: 8 },
+      { title: 'Build public roadmap view', state: 'backlog', sprintOffset: null, priority: 'low', estimate: 10 },
+      { title: 'Add comment threading', state: 'backlog', sprintOffset: null, priority: 'medium', estimate: 6 },
+      { title: 'Implement saved views/filters', state: 'backlog', sprintOffset: null, priority: 'medium', estimate: 8 },
     ];
 
     // Generic issues for other programs - expanded for better testing
     const genericIssueTemplates = [
-      // Completed issues (past sprints)
-      { title: 'Set up project structure', state: 'done', estimate: 4, sprintOffset: -2, priority: 'high' },
-      { title: 'Create initial documentation', state: 'done', estimate: 3, sprintOffset: -2, priority: 'medium' },
-      { title: 'Define coding standards', state: 'done', estimate: 2, sprintOffset: -2, priority: 'low' },
-      { title: 'Configure CI/CD pipeline', state: 'done', estimate: 6, sprintOffset: -1, priority: 'high' },
-      { title: 'Set up staging environment', state: 'done', estimate: 4, sprintOffset: -1, priority: 'medium' },
+      // Sprint -3 (completed, older history)
+      { title: 'Set up project structure', state: 'done', estimate: 4, sprintOffset: -3, priority: 'high' },
+      { title: 'Create initial documentation', state: 'done', estimate: 3, sprintOffset: -3, priority: 'medium' },
+      { title: 'Define coding standards', state: 'done', estimate: 2, sprintOffset: -3, priority: 'low' },
+      { title: 'Set up linting and formatting', state: 'done', estimate: 2, sprintOffset: -3, priority: 'medium' },
+      { title: 'Create project README', state: 'done', estimate: 1, sprintOffset: -3, priority: 'low' },
+      // Sprint -2 (completed)
+      { title: 'Configure CI/CD pipeline', state: 'done', estimate: 6, sprintOffset: -2, priority: 'high' },
+      { title: 'Set up staging environment', state: 'done', estimate: 4, sprintOffset: -2, priority: 'medium' },
+      { title: 'Implement authentication flow', state: 'done', estimate: 8, sprintOffset: -2, priority: 'high' },
+      { title: 'Add database connection pooling', state: 'done', estimate: 3, sprintOffset: -2, priority: 'medium' },
+      { title: 'Write seed data scripts', state: 'done', estimate: 3, sprintOffset: -2, priority: 'low' },
+      { title: 'Set up error tracking', state: 'todo', estimate: 4, sprintOffset: -2, priority: 'medium' },
+      // Sprint -1 (completed, some incomplete)
+      { title: 'Build data model layer', state: 'done', estimate: 6, sprintOffset: -1, priority: 'high' },
+      { title: 'Create REST endpoints', state: 'done', estimate: 8, sprintOffset: -1, priority: 'high' },
+      { title: 'Add request validation middleware', state: 'done', estimate: 4, sprintOffset: -1, priority: 'medium' },
+      { title: 'Implement pagination helpers', state: 'todo', estimate: 3, sprintOffset: -1, priority: 'medium' },
+      { title: 'Set up rate limiting', state: 'todo', estimate: 4, sprintOffset: -1, priority: 'low' },
+      { title: 'Write API documentation', state: 'done', estimate: 3, sprintOffset: -1, priority: 'low' },
       // Current sprint - mix of states
       { title: 'Implement core features', state: 'done', estimate: 8, sprintOffset: 0, priority: 'high' },
       { title: 'Add input validation', state: 'done', estimate: 4, sprintOffset: 0, priority: 'high' },
@@ -637,14 +683,29 @@ async function seed() {
       { title: 'Build user interface', state: 'in_progress', estimate: 6, sprintOffset: 0, priority: 'medium' },
       { title: 'Add unit tests', state: 'todo', estimate: 4, sprintOffset: 0, priority: 'medium' },
       { title: 'Write integration tests', state: 'todo', estimate: 5, sprintOffset: 0, priority: 'low' },
-      // Upcoming sprint
+      { title: 'Implement search filtering', state: 'in_progress', estimate: 6, sprintOffset: 0, priority: 'medium' },
+      { title: 'Add loading states and skeletons', state: 'done', estimate: 3, sprintOffset: 0, priority: 'low' },
+      { title: 'Fix responsive layout issues', state: 'todo', estimate: 4, sprintOffset: 0, priority: 'medium' },
+      // Sprint +1 (upcoming)
       { title: 'Performance optimization', state: 'todo', estimate: 6, sprintOffset: 1, priority: 'medium' },
       { title: 'Add caching layer', state: 'todo', estimate: 4, sprintOffset: 1, priority: 'medium' },
       { title: 'Security audit fixes', state: 'todo', estimate: 8, sprintOffset: 1, priority: 'high' },
+      { title: 'Implement batch operations', state: 'todo', estimate: 5, sprintOffset: 1, priority: 'medium' },
+      { title: 'Add keyboard shortcuts', state: 'todo', estimate: 3, sprintOffset: 1, priority: 'low' },
+      { title: 'Improve error messages', state: 'todo', estimate: 3, sprintOffset: 1, priority: 'medium' },
+      // Sprint +2 (future)
+      { title: 'Build notification preferences', state: 'todo', estimate: 5, sprintOffset: 2, priority: 'medium' },
+      { title: 'Add data export to CSV', state: 'todo', estimate: 4, sprintOffset: 2, priority: 'low' },
+      { title: 'Implement audit trail', state: 'todo', estimate: 6, sprintOffset: 2, priority: 'high' },
       // Backlog
       { title: 'Implement analytics', state: 'backlog', estimate: 6, sprintOffset: null, priority: 'low' },
       { title: 'Add export functionality', state: 'backlog', estimate: 4, sprintOffset: null, priority: 'low' },
       { title: 'Create admin dashboard', state: 'backlog', estimate: 10, sprintOffset: null, priority: 'medium' },
+      { title: 'Build webhook integrations', state: 'backlog', estimate: 8, sprintOffset: null, priority: 'low' },
+      { title: 'Add multi-language support', state: 'backlog', estimate: 12, sprintOffset: null, priority: 'low' },
+      { title: 'Implement data archival', state: 'backlog', estimate: 6, sprintOffset: null, priority: 'medium' },
+      { title: 'Create public API', state: 'backlog', estimate: 16, sprintOffset: null, priority: 'medium' },
+      { title: 'Add SSO integration', state: 'backlog', estimate: 10, sprintOffset: null, priority: 'high' },
     ];
 
     let issuesCreated = 0;
@@ -835,6 +896,9 @@ async function seed() {
     const nestedDocs = [
       { title: 'Getting Started', parentId: tutorialDocId },
       { title: 'Advanced Topics', parentId: tutorialDocId },
+      { title: 'FAQ', parentId: tutorialDocId },
+      { title: 'Keyboard Shortcuts', parentId: tutorialDocId },
+      { title: 'Tips and Tricks', parentId: tutorialDocId },
     ];
 
     let nestedDocsCreated = 0;
@@ -865,6 +929,65 @@ async function seed() {
       { title: 'Architecture Guide', content: 'Technical architecture and design decisions.' },
       { title: 'API Reference', content: 'API endpoints and usage documentation.' },
       { title: 'Development Setup', content: 'How to set up your local development environment.' },
+      // Knowledge base articles
+      { title: 'Onboarding Guide', content: 'Step-by-step onboarding process for new team members joining the organization.' },
+      { title: 'Code Review Guidelines', content: 'Best practices for conducting thorough and constructive code reviews.' },
+      { title: 'Git Branching Strategy', content: 'Our branching model: feature branches, release branches, and hotfix procedures.' },
+      { title: 'Testing Strategy', content: 'Unit testing, integration testing, and end-to-end testing standards and tools.' },
+      { title: 'Deployment Procedures', content: 'How to deploy to staging and production environments safely.' },
+      { title: 'Incident Response Playbook', content: 'Steps to follow when a production incident is detected.' },
+      { title: 'Database Migration Guide', content: 'How to write, test, and deploy database migrations.' },
+      { title: 'Security Best Practices', content: 'Authentication, authorization, input validation, and secrets management.' },
+      { title: 'Performance Optimization', content: 'Frontend and backend performance tips and monitoring setup.' },
+      { title: 'Accessibility Standards', content: 'WCAG 2.1 AA compliance requirements and testing tools.' },
+      { title: 'Design System Documentation', content: 'Component library usage, design tokens, and theming guidelines.' },
+      { title: 'API Versioning Policy', content: 'How we version APIs and handle breaking changes.' },
+      { title: 'Monitoring and Alerting', content: 'Grafana dashboards, alert thresholds, and on-call rotation.' },
+      { title: 'Data Privacy Policy', content: 'PII handling, data retention, and GDPR compliance procedures.' },
+      { title: 'Feature Flag Management', content: 'How to create, test, and roll out feature flags.' },
+      { title: 'CI/CD Pipeline Overview', content: 'Build, test, and deploy pipeline architecture and configuration.' },
+      { title: 'Troubleshooting Common Issues', content: 'Solutions for frequently encountered development and deployment problems.' },
+      { title: 'Third-Party Integrations', content: 'List of external services we integrate with and their configurations.' },
+      { title: 'Sprint Planning Checklist', content: 'Pre-sprint, mid-sprint, and end-of-sprint ceremony checklists.' },
+      { title: 'Retrospective Templates', content: 'Templates for running effective team retrospectives.' },
+      { title: 'Communication Guidelines', content: 'When to use Slack, email, meetings, and async documentation.' },
+      { title: 'Error Handling Patterns', content: 'Standard error codes, error boundaries, and graceful degradation.' },
+      { title: 'Caching Strategy', content: 'Redis caching patterns, cache invalidation, and TTL policies.' },
+      { title: 'Logging Standards', content: 'Structured logging format, log levels, and log aggregation setup.' },
+      { title: 'Infrastructure as Code', content: 'Terraform modules, environment provisioning, and resource management.' },
+      { title: 'Load Testing Guide', content: 'How to run load tests, interpret results, and set performance budgets.' },
+      { title: 'Mobile Responsiveness', content: 'Breakpoints, touch targets, and mobile-first design patterns.' },
+      { title: 'WebSocket Architecture', content: 'Real-time communication patterns, connection management, and scaling.' },
+      { title: 'Search Implementation', content: 'Full-text search setup, indexing strategy, and relevance tuning.' },
+      { title: 'File Upload Handling', content: 'Upload limits, virus scanning, storage backends, and CDN delivery.' },
+      { title: 'Email Notification System', content: 'Transactional email templates, delivery tracking, and bounce handling.' },
+      { title: 'User Roles and Permissions', content: 'RBAC model, permission matrix, and role assignment workflows.' },
+      { title: 'Analytics and Metrics', content: 'Product analytics events, dashboards, and data warehouse integration.' },
+      { title: 'Backup and Recovery', content: 'Database backup schedule, point-in-time recovery, and disaster recovery plan.' },
+      { title: 'Cost Optimization', content: 'Cloud cost monitoring, right-sizing instances, and reserved capacity.' },
+      { title: 'Dependency Management', content: 'How we evaluate, add, and update third-party dependencies.' },
+      { title: 'Technical Debt Register', content: 'Tracking and prioritizing technical debt items across the codebase.' },
+      { title: 'Release Notes Template', content: 'Standard format for documenting releases and communicating changes.' },
+      { title: 'Cross-Team Collaboration', content: 'Working agreements between frontend, backend, and infrastructure teams.' },
+      { title: 'Environment Variables Guide', content: 'Required environment variables for each service and how to configure them.' },
+      { title: 'Docker Setup Guide', content: 'Running the application with Docker Compose for local development.' },
+      { title: 'TypeScript Style Guide', content: 'TypeScript conventions, strict mode settings, and type utility patterns.' },
+      { title: 'React Component Patterns', content: 'Compound components, render props, and custom hook patterns used in the UI.' },
+      { title: 'State Management Guide', content: 'React Query for server state, context for UI state, and when to use each.' },
+      { title: 'Database Schema Reference', content: 'Entity relationship diagram and table descriptions for the main database.' },
+      { title: 'Networking and CORS', content: 'Cross-origin policies, proxy setup in development, and production headers.' },
+      { title: 'Keyboard Accessibility Guide', content: 'Focus management, tab order, and ARIA patterns for interactive components.' },
+      { title: 'Internationalization Roadmap', content: 'Plans for i18n support, locale handling, and translation workflow.' },
+      { title: 'Vendor Evaluation Criteria', content: 'How we evaluate third-party vendors and services for security and reliability.' },
+      { title: 'Post-Mortem Template', content: 'Template for writing incident post-mortems with timeline and action items.' },
+      { title: 'Change Management Process', content: 'How to propose, review, and approve significant architectural changes.' },
+      { title: 'Data Model Conventions', content: 'Naming conventions, soft deletes, timestamps, and UUID usage in the database.' },
+      { title: 'Frontend Testing Patterns', content: 'Component testing with React Testing Library, mocking strategies, and snapshot tests.' },
+      { title: 'API Error Codes Reference', content: 'Complete list of API error codes, their meanings, and client handling guidance.' },
+      { title: 'Service Level Objectives', content: 'Availability targets, latency budgets, and error rate thresholds for each service.' },
+      { title: 'Team Working Agreements', content: 'Meeting cadence, review turnaround times, and definition of done.' },
+      { title: 'Capacity Planning Guide', content: 'How to estimate infrastructure capacity needs based on traffic projections.' },
+      { title: 'Migration from Legacy System', content: 'Data migration scripts, validation checklist, and rollback procedures.' },
     ];
 
     let standaloneDocsCreated = 0;
@@ -893,13 +1016,23 @@ async function seed() {
       console.log(`✅ Created ${standaloneDocsCreated} standalone wiki documents`);
     }
 
-    // Create sample standups for Ship Core sprints (tests the standup feed feature)
-    const shipCoreSprints = sprints.filter(s => s.programId === shipCoreProgram.id);
+    // Create sample standups for ALL programs' sprints (not just Ship Core)
     let standupsCreated = 0;
 
-    // Add standups to current and recent sprints
-    for (const sprint of shipCoreSprints) {
-      if (sprint.number >= currentSprintNumber - 1 && sprint.number <= currentSprintNumber) {
+    const standupMessages = [
+      'Yesterday: Finished implementing the sprint timeline UI component.\nToday: Working on the progress chart integration.\nBlockers: None',
+      'Yesterday: Code review and bug fixes.\nToday: Starting on issue assignment flow.\nBlockers: Waiting on API spec clarification.',
+      'Yesterday: Team sync and planning session.\nToday: Documentation and testing.\nBlockers: None',
+      'Yesterday: Deployed feature to staging, ran smoke tests.\nToday: Addressing review feedback and writing tests.\nBlockers: None',
+      'Yesterday: Investigated performance regression in dashboard.\nToday: Implementing fix and adding monitoring.\nBlockers: Need access to production logs.',
+      'Yesterday: Completed design review for new component.\nToday: Starting implementation of approved designs.\nBlockers: None',
+      'Yesterday: Paired on tricky database migration.\nToday: Running migration in staging and validating data.\nBlockers: None',
+      'Yesterday: Fixed flaky tests in CI pipeline.\nToday: Adding retry logic for external API calls.\nBlockers: Waiting on third-party API key.',
+    ];
+
+    // Add standups to current and recent sprints across all programs
+    for (const sprint of sprints) {
+      if (sprint.number >= currentSprintNumber - 2 && sprint.number <= currentSprintNumber) {
         // Check if standups already exist for this sprint (via junction table)
         const existingStandups = await pool.query(
           `SELECT d.id FROM documents d
@@ -910,59 +1043,32 @@ async function seed() {
         );
 
         if (existingStandups.rows.length === 0) {
-          // Create 2-3 standups per sprint from different team members
-          const standupAuthors = allUsers.slice(0, 3);
-          const standupMessages = [
-            {
-              content: {
-                type: 'doc',
-                content: [
-                  { type: 'paragraph', content: [{ type: 'text', text: 'Yesterday: Finished implementing the sprint timeline UI component.' }] },
-                  { type: 'paragraph', content: [{ type: 'text', text: 'Today: Working on the progress chart integration.' }] },
-                  { type: 'paragraph', content: [{ type: 'text', text: 'Blockers: None' }] },
-                ],
-              },
-            },
-            {
-              content: {
-                type: 'doc',
-                content: [
-                  { type: 'paragraph', content: [{ type: 'text', text: 'Yesterday: Code review and bug fixes.' }] },
-                  { type: 'paragraph', content: [{ type: 'text', text: 'Today: Starting on issue assignment flow.' }] },
-                  { type: 'paragraph', content: [{ type: 'text', text: 'Blockers: Waiting on API spec clarification.' }] },
-                ],
-              },
-            },
-            {
-              content: {
-                type: 'doc',
-                content: [
-                  { type: 'paragraph', content: [{ type: 'text', text: 'Yesterday: Team sync and planning session.' }] },
-                  { type: 'paragraph', content: [{ type: 'text', text: 'Today: Documentation and testing.' }] },
-                  { type: 'paragraph', content: [{ type: 'text', text: 'Blockers: None' }] },
-                ],
-              },
-            },
-          ];
+          // Get team members for this program
+          const team = programTeams[sprint.programId]!;
+          const numStandups = Math.min(team.length, 3); // Up to 3 standups per sprint
 
-          for (let i = 0; i < standupAuthors.length; i++) {
-            const author = standupAuthors[i]!;
-            const message = standupMessages[i]!;
-            const daysAgo = i; // Stagger the standups over recent days
+          for (let i = 0; i < numStandups; i++) {
+            const author = allUsers[team[i]!]!;
+            const msgText = standupMessages[(sprint.number + i) % standupMessages.length]!;
+            const content = {
+              type: 'doc',
+              content: msgText.split('\n').map(line => ({
+                type: 'paragraph',
+                content: [{ type: 'text', text: line }],
+              })),
+            };
+            const daysAgo = i;
             const properties = { author_id: author.id };
 
-            // Create standup document without legacy sprint_id column
             const standupResult = await pool.query(
               `INSERT INTO documents (workspace_id, document_type, title, content, created_by, properties, created_at)
                VALUES ($1, 'standup', $2, $3, $4, $5, NOW() - INTERVAL '${daysAgo} days')
                RETURNING id`,
-              [workspaceId, `Standup - ${author.name}`, JSON.stringify(message.content), author.id, JSON.stringify(properties)]
+              [workspaceId, `Standup - ${author.name}`, JSON.stringify(content), author.id, JSON.stringify(properties)]
             );
             const standupId = standupResult.rows[0].id;
 
-            // Create association to sprint via junction table
             await createAssociation(pool, standupId, sprint.id, 'sprint');
-
             standupsCreated++;
           }
         }
