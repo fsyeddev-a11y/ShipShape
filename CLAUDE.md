@@ -3,6 +3,7 @@
 ## Git Commit Rules
 
 - **Never** add "Co-Authored-By", "by Claude", or any AI attribution to commit messages. Commits should look like they were written by the developer, with no AI co-author tags.
+- **Always use `--no-ff` when merging category branches to master.** This creates a merge commit (e.g., `Merge branch 'cat2-bundle-size'`) so the history clearly shows when each category was merged. Never fast-forward merge category branches.
 
 ## Project Overview
 
