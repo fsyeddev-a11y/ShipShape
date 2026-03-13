@@ -316,6 +316,60 @@ export interface WeeklyReviewDocument extends Document {
   properties: WeeklyReviewProperties;
 }
 
+// Discriminated union of all typed document variants
+export type TypedDocument =
+  | WikiDocument
+  | IssueDocument
+  | ProgramDocument
+  | ProjectDocument
+  | WeekDocument
+  | PersonDocument
+  | WeeklyPlanDocument
+  | WeeklyRetroDocument
+  | StandupDocument
+  | WeeklyReviewDocument;
+
+// Type guard functions for narrowing document types
+export function isWikiDocument(doc: Document): doc is WikiDocument {
+  return doc.document_type === 'wiki';
+}
+
+export function isIssueDocument(doc: Document): doc is IssueDocument {
+  return doc.document_type === 'issue';
+}
+
+export function isProgramDocument(doc: Document): doc is ProgramDocument {
+  return doc.document_type === 'program';
+}
+
+export function isProjectDocument(doc: Document): doc is ProjectDocument {
+  return doc.document_type === 'project';
+}
+
+export function isWeekDocument(doc: Document): doc is WeekDocument {
+  return doc.document_type === 'sprint';
+}
+
+export function isPersonDocument(doc: Document): doc is PersonDocument {
+  return doc.document_type === 'person';
+}
+
+export function isWeeklyPlanDocument(doc: Document): doc is WeeklyPlanDocument {
+  return doc.document_type === 'weekly_plan';
+}
+
+export function isWeeklyRetroDocument(doc: Document): doc is WeeklyRetroDocument {
+  return doc.document_type === 'weekly_retro';
+}
+
+export function isStandupDocument(doc: Document): doc is StandupDocument {
+  return doc.document_type === 'standup';
+}
+
+export function isWeeklyReviewDocument(doc: Document): doc is WeeklyReviewDocument {
+  return doc.document_type === 'weekly_review';
+}
+
 // Default project properties - ICE and owner start as null (not yet set)
 export const DEFAULT_PROJECT_PROPERTIES: Partial<ProjectProperties> = {
   impact: null,

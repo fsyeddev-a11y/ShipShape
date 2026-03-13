@@ -14,13 +14,76 @@ const router: RouterType = Router();
 // Inferred project status type
 type InferredProjectStatus = 'active' | 'planned' | 'completed' | 'backlog' | 'archived';
 
+// DB row types for typed query results
+interface ProjectRow {
+  id: string;
+  title: string;
+  properties: Record<string, unknown>;
+  program_id: string | null;
+  archived_at: string | null;
+  created_at: string;
+  updated_at: string;
+  converted_from_id: string | null;
+  converted_to_id?: string | null;
+  owner_id: string | null;
+  owner_name: string | null;
+  owner_email: string | null;
+  sprint_count: string;
+  issue_count: string;
+  inferred_status: InferredProjectStatus | null;
+}
+
+interface ProjectExistingRow {
+  id: string;
+  properties: Record<string, unknown>;
+  content?: Record<string, unknown>;
+}
+
+interface ProjectSprintRow {
+  id: string;
+  title: string;
+  properties: Record<string, unknown>;
+  program_id: string | null;
+  program_name: string | null;
+  program_prefix: string | null;
+  workspace_sprint_start_date: string | null;
+  project_id: string | null;
+  project_name: string | null;
+  owner_id: string | null;
+  owner_name: string | null;
+  owner_email: string | null;
+  issue_count: string;
+  completed_count: string;
+  started_count: string;
+}
+
+interface RetroIssueRow {
+  id: string;
+  title: string;
+  state: string;
+  sprint_number?: string;
+}
+
+interface TipTapNode {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: TipTapNode[];
+  marks?: { type: string; attrs?: Record<string, unknown> }[];
+  text?: string;
+}
+
+interface TipTapContent {
+  type: string;
+  content: TipTapNode[];
+}
+
 // Helper to extract project from row with computed ice_score
-function extractProjectFromRow(row: any) {
+function extractProjectFromRow(row: ProjectRow) {
   const props = row.properties || {};
   // ICE values can be null (not yet set) - don't default to 3
-  const impact = props.impact !== undefined ? props.impact : null;
-  const confidence = props.confidence !== undefined ? props.confidence : null;
-  const ease = props.ease !== undefined ? props.ease : null;
+  const impact = (props.impact !== undefined ? props.impact : null) as number | null;
+  const confidence = (props.confidence !== undefined ? props.confidence : null) as number | null;
+  const ease = (props.ease !== undefined ? props.ease : null) as number | null;
 
   return {
     id: row.id,
@@ -120,7 +183,7 @@ const projectRetroSchema = z.object({
 });
 
 // Helper to generate pre-filled retro content for a project
-async function generatePrefilledRetroContent(projectData: any, sprints: any[], issues: any[]) {
+async function generatePrefilledRetroContent(projectData: ProjectExistingRow & { title: string }, sprints: RetroIssueRow[], issues: RetroIssueRow[]) {
   const props = projectData.properties || {};
 
   // Categorize issues by state
@@ -129,7 +192,7 @@ async function generatePrefilledRetroContent(projectData: any, sprints: any[], i
   const activeIssues = issues.filter(i => !['done', 'cancelled'].includes(i.state));
 
   // Build TipTap content
-  const content: any = {
+  const content: TipTapContent = {
     type: 'doc',
     content: [
       {
@@ -147,9 +210,9 @@ async function generatePrefilledRetroContent(projectData: any, sprints: any[], i
   };
 
   // Add ICE Score section
-  const impact = props.impact;
-  const confidence = props.confidence;
-  const ease = props.ease;
+  const impact = (typeof props.impact === 'number' ? props.impact : null) as number | null;
+  const confidence = (typeof props.confidence === 'number' ? props.confidence : null) as number | null;
+  const ease = (typeof props.ease === 'number' ? props.ease : null) as number | null;
   const iceScore = (impact !== null && confidence !== null && ease !== null)
     ? impact * confidence * ease
     : null;
@@ -628,7 +691,7 @@ router.patch('/:id', authMiddleware, async (req: Request, res: Response) => {
 
     const currentProps = existing.rows[0].properties || {};
     const updates: string[] = [];
-    const values: any[] = [];
+    const values: (string | number | boolean | null)[] = [];
     let paramIndex = 1;
 
     const data = parsed.data;
@@ -956,9 +1019,9 @@ router.get('/:id/retro', authMiddleware, async (req: Request, res: Response) => 
         weeks: sprintsResult.rows,
         issues_summary: {
           total: issuesResult.rows.length,
-          completed: issuesResult.rows.filter((i: any) => i.state === 'done').length,
-          cancelled: issuesResult.rows.filter((i: any) => i.state === 'cancelled').length,
-          active: issuesResult.rows.filter((i: any) => !['done', 'cancelled'].includes(i.state)).length,
+          completed: issuesResult.rows.filter((i: RetroIssueRow) => i.state === 'done').length,
+          cancelled: issuesResult.rows.filter((i: RetroIssueRow) => i.state === 'cancelled').length,
+          active: issuesResult.rows.filter((i: RetroIssueRow) => !['done', 'cancelled'].includes(i.state)).length,
         },
       });
     } else {
@@ -980,9 +1043,9 @@ router.get('/:id/retro', authMiddleware, async (req: Request, res: Response) => 
         weeks: sprintsResult.rows,
         issues_summary: {
           total: issuesResult.rows.length,
-          completed: issuesResult.rows.filter((i: any) => i.state === 'done').length,
-          cancelled: issuesResult.rows.filter((i: any) => i.state === 'cancelled').length,
-          active: issuesResult.rows.filter((i: any) => !['done', 'cancelled'].includes(i.state)).length,
+          completed: issuesResult.rows.filter((i: RetroIssueRow) => i.state === 'done').length,
+          cancelled: issuesResult.rows.filter((i: RetroIssueRow) => i.state === 'cancelled').length,
+          active: issuesResult.rows.filter((i: RetroIssueRow) => !['done', 'cancelled'].includes(i.state)).length,
         },
       });
     }
@@ -1035,7 +1098,7 @@ router.post('/:id/retro', authMiddleware, async (req: Request, res: Response) =>
 
     // Update project with retro properties and optional content
     const updates: string[] = ['properties = $1', 'updated_at = now()'];
-    const values: any[] = [JSON.stringify(newProps)];
+    const values: (string | number | boolean | null)[] = [JSON.stringify(newProps)];
 
     if (content) {
       updates.push('content = $2');
@@ -1099,7 +1162,7 @@ const createProjectSprintSchema = z.object({
 });
 
 // Helper to extract sprint from row (matches sprints.ts pattern)
-function extractSprintFromRow(row: any) {
+function extractSprintFromRow(row: ProjectSprintRow) {
   const props = row.properties || {};
   return {
     id: row.id,
@@ -1554,7 +1617,7 @@ router.patch('/:id/retro', authMiddleware, async (req: Request, res: Response) =
 
     // Update project with retro properties and optional content
     const updates: string[] = ['properties = $1', 'updated_at = now()'];
-    const values: any[] = [JSON.stringify(newProps)];
+    const values: (string | number | boolean | null)[] = [JSON.stringify(newProps)];
 
     if (content !== undefined) {
       updates.push('content = $2');
