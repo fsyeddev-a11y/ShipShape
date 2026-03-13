@@ -84,12 +84,13 @@ Categories 3, 4, and 5 are backend-only changes — you can skip the web static 
 
 | Variable | Value | Notes |
 |----------|-------|-------|
+| `CORS_ORIGIN` | `https://shipshape-cat{N}-web.onrender.com` | Must match the exact web URL (no trailing slash) |
+| `DATABASE_URL` | `postgresql://shipshape_prod_db_user:7JvmdHZzEvg2IEIsPFfjNt239CA9QtLN@dpg-d6pj2df5gffc73bt7f80-a/shipshape_prod_db` | Shared Working DB |
 | `NODE_ENV` | `production` | Required for SSL, secure cookies, etc. |
-| `SKIP_SSM` | `true` | **Critical.** Without this, startup crashes with `CredentialsProviderError` trying to reach AWS SSM |
-| `DATABASE_URL` | *(from Render PostgreSQL)* | Internal connection string from your Working DB |
 | `SESSION_SECRET` | *(generate a random string)* | Any secure random value, e.g., `openssl rand -hex 32` |
-| `CORS_ORIGIN` | `https://your-web-instance.onrender.com` | Must match the exact web URL (no trailing slash) |
-| `PORT` | `3000` | Default, Render provides this automatically |
+| `SKIP_SSM` | `true` | **Critical.** Without this, startup crashes with `CredentialsProviderError` trying to reach AWS SSM |
+
+> **Replace `cat{N}` with the category number.** For example, Category 5 uses `https://shipshape-cat5-web.onrender.com` and `https://shipshape-cat5-api.onrender.com`.
 
 ### Known Issues
 
@@ -119,14 +120,18 @@ Categories 3, 4, and 5 are backend-only changes — you can skip the web static 
 
 | Setting | Value |
 |---------|-------|
-| **Build Command** | `pnpm install && pnpm --filter @ship/shared build && pnpm --filter @ship/web build` |
-| **Publish Directory** | `web/dist` |
+| **Build Command** | `npm i -g pnpm@10.27.0 && pnpm install && pnpm --filter @ship/shared build && pnpm --filter @ship/web build` |
+| **Publish Directory** | `dist` |
 
 ### Environment Variables
 
 | Variable | Value | Notes |
 |----------|-------|-------|
-| `VITE_API_URL` | `https://your-api-instance.onrender.com` | **Build-time only.** Must be set before build runs. This is baked into the JS bundle |
+| `SKIP_INSTALL_DEPS` | `true` | Prevents Render from auto-installing with npm |
+| `VITE_API_URL` | `https://shipshape-cat{N}-api.onrender.com` | **Build-time only.** Baked into the JS bundle at build |
+| `VITE_WS_URL` | `https://shipshape-cat{N}-api.onrender.com` | WebSocket URL for real-time collaboration |
+
+> **Replace `cat{N}` with the category number.** For example, Category 5: `https://shipshape-cat5-api.onrender.com`.
 
 ### Rewrite Rules
 
@@ -193,15 +198,15 @@ You only need to seed once per database. The Working DB persists across branch d
 
 ## Deploying a New Category
 
-Quick checklist for spinning up a category:
+Quick checklist for spinning up a category (replace `{N}` with category number):
 
 1. [ ] Rebase the category branch from `master`: `git rebase master && git push --force-with-lease`
 2. [ ] Create (or update) the API Web Service pointing to the category branch
-3. [ ] Set all env vars: `NODE_ENV`, `SKIP_SSM`, `DATABASE_URL`, `SESSION_SECRET`, `CORS_ORIGIN`
+3. [ ] Set API env vars: `CORS_ORIGIN`, `DATABASE_URL`, `NODE_ENV=production`, `SESSION_SECRET`, `SKIP_SSM=true`
 4. [ ] Create the Web Static Site if needed (Cat 2, 6, 7 have frontend changes)
-5. [ ] Set `VITE_API_URL` env var on the Static Site
+5. [ ] Set Web env vars: `SKIP_INSTALL_DEPS=true`, `VITE_API_URL`, `VITE_WS_URL`
 6. [ ] Add `/* → /index.html` rewrite rule on the Static Site
-7. [ ] Verify API health: `curl https://your-api.onrender.com/api/setup/status`
+7. [ ] Verify API health: `curl https://shipshape-cat{N}-api.onrender.com/api/setup/status`
 8. [ ] Verify Web loads and API calls reach the correct domain (check Network tab)
 9. [ ] Run the category's specs, test, benchmark
 10. [ ] When done: merge to master, rebase the next category branch, repeat
