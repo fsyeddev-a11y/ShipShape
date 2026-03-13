@@ -244,4 +244,13 @@ docs/
       cat{N}-*.md                   # Per-category implementation docs
     benchmark/                      # Fill in after all specs in category are done
       cat{N}-*-benchmark.md         # Per-category benchmark results + comparison
+    phase2/                         # Post-implementation issues and bugs
+      cat{N}-*-issues.md            # Issues found after implementing each category
 ```
+
+### Phase 2 Issue Tracking
+
+After implementing and testing specs, log any issues or bugs discovered in `docs/category/phase2/cat{N}-*-issues.md`. Include:
+- Which spec triggered the issue
+- Severity, reproduction steps, expected vs actual behavior
+- How it was fixed (after resolution)

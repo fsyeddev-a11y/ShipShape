@@ -20,7 +20,6 @@ import { spawn, ChildProcess } from 'child_process';
 import { Pool } from 'pg';
 import { readdirSync, readFileSync, existsSync } from 'fs';
 import path from 'path';
-import getPort, { portNumbers } from 'get-port';
 import bcrypt from 'bcryptjs';
 import os from 'os';
 
@@ -35,6 +34,7 @@ import os from 'os';
  * - etc.
  */
 async function getWorkerPort(workerIndex: number): Promise<number> {
+  const { default: getPort, portNumbers } = await import('get-port');
   const BASE_PORT = 10000;
   const MAX_PORT = 65535;
   const PORTS_PER_WORKER = 100;

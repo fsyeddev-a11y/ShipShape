@@ -10,8 +10,9 @@ Specs derived from the [audit report](../../audit/audit-report.md) and previous 
 
 | # | Spec | Summary | Severity |
 |---|------|---------|----------|
-| 5.1 | [E2E ESM/CJS Fix](cat5-e2e-esm-fix.md) | Pin `get-port` to 6.1.2 to fix ERR_REQUIRE_ESM | High |
+| 5.1 | ~~[E2E ESM/CJS Fix](cat5-e2e-esm-fix.md)~~ | ~~Pin `get-port` to 6.1.2~~ — Deprecated, see 5.3 | High |
 | 5.2 | [Web Unit Test ESM/CJS Fix](cat5-web-unit-test-fix.md) | Switch from `html-encoding-sniffer` to `happy-dom` | High |
+| 5.3 | [E2E Dynamic Import Fix](cat5-e2e-dynamic-import-fix.md) | Use dynamic `import()` for `get-port` to fix ERR_REQUIRE_ESM | High |
 
 ## Category 2 — Bundle Size
 

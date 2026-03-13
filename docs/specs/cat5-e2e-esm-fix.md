@@ -1,5 +1,7 @@
 # Spec 5.1: Fix E2E Test Suite ESM/CJS Dependency Conflict
 
+> **DEPRECATED:** This spec incorrectly assumes that `get-port@6.1.2` is CJS-compatible. In practice, `get-port` has been ESM-only since v6.0.0 (`"type": "module"` in its package.json). Pinning to 6.1.2 does not resolve the `ERR_REQUIRE_ESM` error because Playwright's TypeScript transform compiles `import` statements to `require()` calls, which cannot load ESM modules regardless of version. See [Spec 5.3](cat5-e2e-dynamic-import-fix.md) for the correct fix.
+
 **Category:** 5 — Test Coverage
 **Priority:** Highest
 **Severity:** High
