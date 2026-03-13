@@ -13,6 +13,7 @@
 import { Router, Request, Response } from 'express';
 import type { Router as RouterType } from 'express';
 import { pool } from '../db/client.js';
+import { cookieSameSite, cookieSecure } from '../config/cookies.js';
 import {
   isCAIAConfigured,
   getAuthorizationUrl,
@@ -300,11 +301,11 @@ router.get('/callback', async (req: Request, res: Response): Promise<void> => {
       req,
     });
 
-    // Set session cookie (always secure - OAuth flow requires HTTPS anyway)
+    // Set session cookie
     res.cookie('session_id', sessionId, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
+      secure: cookieSecure,
+      sameSite: cookieSameSite,
       maxAge: SESSION_TIMEOUT_MS,
       path: '/',
     });

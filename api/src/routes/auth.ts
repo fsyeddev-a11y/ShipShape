@@ -6,6 +6,7 @@ import { pool } from '../db/client.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { ERROR_CODES, HTTP_STATUS, SESSION_TIMEOUT_MS, ABSOLUTE_SESSION_TIMEOUT_MS } from '@ship/shared';
 import { logAuditEvent } from '../services/audit.js';
+import { cookieSameSite, cookieSecure } from '../config/cookies.js';
 
 const router: RouterType = Router();
 
@@ -184,8 +185,8 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     // Set cookie with hardened security options
     res.cookie('session_id', sessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict', // Strict for government applications
+      secure: cookieSecure,
+      sameSite: cookieSameSite,
       maxAge: SESSION_TIMEOUT_MS,
       path: '/',
     });
@@ -240,8 +241,8 @@ router.post('/logout', authMiddleware, async (req: Request, res: Response): Prom
     // Clear cookie with same options used when setting it
     res.clearCookie('session_id', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: cookieSecure,
+      sameSite: cookieSameSite,
       path: '/',
     });
 
@@ -363,8 +364,8 @@ router.post('/extend-session', authMiddleware, async (req: Request, res: Respons
     // Refresh cookie with new maxAge (sliding expiration)
     res.cookie('session_id', req.sessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: cookieSecure,
+      sameSite: cookieSameSite,
       maxAge: SESSION_TIMEOUT_MS,
       path: '/',
     });

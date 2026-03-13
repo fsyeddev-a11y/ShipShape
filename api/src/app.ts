@@ -35,6 +35,7 @@ import weeklyPlansRoutes, { weeklyRetrosRouter } from './routes/weekly-plans.js'
 import { documentCommentsRouter, commentsRouter } from './routes/comments.js';
 import { setupSwagger } from './swagger.js';
 import { initializeCAIA } from './services/caia.js';
+import { cookieSameSite, cookieSecure } from './config/cookies.js';
 
 // Validate SESSION_SECRET in production
 if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
@@ -144,19 +145,14 @@ export function createApp(corsOrigin: string = 'http://localhost:5173'): express
   app.use(cookieParser(sessionSecret));
 
   // Session middleware for CSRF token storage
-  // Cross-origin deployments (e.g., Render with separate web/API domains) need
-  // sameSite: 'none' so the browser sends the session cookie cross-origin.
-  // Same-origin deployments (e.g., behind CloudFront) use 'strict'.
-  const isProduction = process.env.NODE_ENV === 'production';
-  const isCrossOrigin = isProduction && corsOrigin !== `http://localhost:${process.env.PORT || 3000}`;
   app.use(session({
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isCrossOrigin ? 'none' : 'strict',
+      secure: cookieSecure,
+      sameSite: cookieSameSite,
       maxAge: 15 * 60 * 1000, // 15 minutes
     },
   }));
