@@ -1,5 +1,9 @@
 # ShipShape — Claude Code Rules
 
+## Git Commit Rules
+
+- **Never** add "Co-Authored-By", "by Claude", or any AI attribution to commit messages. Commits should look like they were written by the developer, with no AI co-author tags.
+
 ## Project Overview
 
 ShipShape is a project management app (think Linear/Jira) with a monorepo structure:
