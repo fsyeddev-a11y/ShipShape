@@ -96,7 +96,7 @@ function extractIssueFromRow(row: any) {
     accountability_target_id: props.accountability_target_id || null,
     accountability_type: props.accountability_type || null,
     ticket_number: row.ticket_number,
-    content: row.content,
+    ...(row.content !== undefined ? { content: row.content } : {}),
     created_at: row.created_at,
     updated_at: row.updated_at,
     created_by: row.created_by,
@@ -123,7 +123,6 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
 
     let query = `
       SELECT d.id, d.title, d.properties, d.ticket_number,
-             d.content,
              d.created_at, d.updated_at, d.created_by,
              d.started_at, d.completed_at, d.cancelled_at, d.reopened_at,
              d.converted_from_id,
@@ -210,23 +209,45 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
       }
     }
 
-    query += ` ORDER BY
-      CASE d.properties->>'priority'
-        WHEN 'urgent' THEN 1
-        WHEN 'high' THEN 2
-        WHEN 'medium' THEN 3
-        WHEN 'low' THEN 4
-        ELSE 5
-      END,
-      d.updated_at DESC`;
+    // Pagination support (cursor-based, keyed on created_at:id)
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+    const cursor = req.query.cursor as string | undefined;
+
+    if (cursor) {
+      const [cursorDate, cursorId] = cursor.split(':');
+      if (cursorDate && cursorId) {
+        query += ` AND (d.created_at, d.id) < ($${params.length + 1}, $${params.length + 2})`;
+        params.push(cursorDate, cursorId);
+      }
+    }
+
+    // When paginating, use stable created_at DESC ordering; otherwise keep priority-based sort
+    if (limit) {
+      query += ` ORDER BY d.created_at DESC, d.id DESC`;
+      query += ` LIMIT $${params.length + 1}`;
+      params.push((limit + 1) as any); // Fetch one extra to determine hasMore
+    } else {
+      query += ` ORDER BY
+        CASE d.properties->>'priority'
+          WHEN 'urgent' THEN 1
+          WHEN 'high' THEN 2
+          WHEN 'medium' THEN 3
+          WHEN 'low' THEN 4
+          ELSE 5
+        END,
+        d.updated_at DESC`;
+    }
 
     const result = await pool.query(query, params);
 
     // Extract issues and batch-fetch associations to avoid N+1 queries
-    const issueIds = result.rows.map(row => row.id);
+    const rows = limit ? result.rows.slice(0, limit) : result.rows;
+    const hasMore = limit ? result.rows.length > limit : false;
+
+    const issueIds = rows.map(row => row.id);
     const associationsMap = await getBelongsToAssociationsBatch(issueIds);
 
-    const issues = result.rows.map(row => {
+    const issues = rows.map(row => {
       const issue = extractIssueFromRow(row);
       return {
         ...issue,
@@ -235,7 +256,16 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
       };
     });
 
-    res.json(issues);
+    // Paginated response format when limit is specified
+    if (limit) {
+      const lastIssue = rows[rows.length - 1];
+      const nextCursor = hasMore && lastIssue
+        ? `${lastIssue.created_at}:${lastIssue.id}`
+        : null;
+      res.json({ issues, nextCursor, hasMore });
+    } else {
+      res.json(issues);
+    }
   } catch (err) {
     console.error('List issues error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -438,7 +468,6 @@ router.get('/:id/children', authMiddleware, async (req: Request, res: Response) 
     // Sub-issues have document_id pointing to this issue's id via relationship_type='parent'
     const result = await pool.query(
       `SELECT d.id, d.title, d.properties, d.ticket_number,
-              d.content,
               d.created_at, d.updated_at, d.created_by,
               d.started_at, d.completed_at, d.cancelled_at, d.reopened_at,
               d.converted_from_id,
