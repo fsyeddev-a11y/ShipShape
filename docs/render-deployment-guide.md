@@ -85,7 +85,7 @@ Categories 3, 4, and 5 are backend-only changes — you can skip the web static 
 | Variable | Value | Notes |
 |----------|-------|-------|
 | `CORS_ORIGIN` | `https://shipshape-cat{N}-web.onrender.com` | Must match the exact web URL (no trailing slash) |
-| `DATABASE_URL` | `postgresql://shipshape_prod_db_user:7JvmdHZzEvg2IEIsPFfjNt239CA9QtLN@dpg-d6pj2df5gffc73bt7f80-a/shipshape_prod_db` | Shared Working DB |
+| `DATABASE_URL` | *(Internal Database URL from Render PostgreSQL dashboard)* | Shared Working DB — copy from your PostgreSQL instance's **Info** tab |
 | `NODE_ENV` | `production` | Required for SSL, secure cookies, etc. |
 | `SESSION_SECRET` | *(generate a random string)* | Any secure random value, e.g., `openssl rand -hex 32` |
 | `SKIP_SSM` | `true` | **Critical.** Without this, startup crashes with `CredentialsProviderError` trying to reach AWS SSM |
