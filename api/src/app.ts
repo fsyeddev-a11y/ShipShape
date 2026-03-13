@@ -144,14 +144,19 @@ export function createApp(corsOrigin: string = 'http://localhost:5173'): express
   app.use(cookieParser(sessionSecret));
 
   // Session middleware for CSRF token storage
+  // Cross-origin deployments (e.g., Render with separate web/API domains) need
+  // sameSite: 'none' so the browser sends the session cookie cross-origin.
+  // Same-origin deployments (e.g., behind CloudFront) use 'strict'.
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isCrossOrigin = isProduction && corsOrigin !== `http://localhost:${process.env.PORT || 3000}`;
   app.use(session({
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProduction,
+      sameSite: isCrossOrigin ? 'none' : 'strict',
       maxAge: 15 * 60 * 1000, // 15 minutes
     },
   }));

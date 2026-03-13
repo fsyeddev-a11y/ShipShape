@@ -63,6 +63,19 @@ export interface CAIACredentialsResult {
  * - Secrets Manager is unreachable (fail closed)
  */
 export async function getCAIACredentials(): Promise<CAIACredentialsResult> {
+  // Skip AWS Secrets Manager on non-AWS deployments (e.g., Render)
+  if (process.env.SKIP_SSM === 'true') {
+    const creds = {
+      issuer_url: process.env.CAIA_ISSUER_URL || '',
+      client_id: process.env.CAIA_CLIENT_ID || '',
+      client_secret: process.env.CAIA_CLIENT_SECRET || '',
+    };
+    if (creds.issuer_url && creds.client_id && creds.client_secret) {
+      return { credentials: creds, configured: true };
+    }
+    return { credentials: null, configured: false };
+  }
+
   const secretName = `${getBasePath()}/caia-credentials`;
   console.log(`[SecretsManager] Fetching CAIA credentials from: ${secretName}`);
 
@@ -124,6 +137,11 @@ export async function getCAIACredentials(): Promise<CAIACredentialsResult> {
  * @throws Error if save fails
  */
 export async function saveCAIACredentials(credentials: CAIACredentials): Promise<void> {
+  if (process.env.SKIP_SSM === 'true') {
+    console.log('[SecretsManager] SKIP_SSM=true, cannot save credentials to Secrets Manager on non-AWS deployment');
+    throw new Error('Credential storage not available on non-AWS deployments. Set CAIA env vars directly.');
+  }
+
   const secretName = `${getBasePath()}/caia-credentials`;
   const secretValue = JSON.stringify(credentials);
 
