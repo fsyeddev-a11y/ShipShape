@@ -36,6 +36,17 @@ Increasing to 25 connections reduces queuing under concurrent load. The environm
 **Tradeoffs:**
 More connections means more memory per connection on both the app server (~10 MB per idle connection) and PostgreSQL. For multi-instance deployments, the total pool across instances must stay under PostgreSQL's `max_connections`. The env var provides an escape hatch for tuning.
 
+**Alternatives Considered:**
+The pool increase was chosen as the simplest, lowest-risk fix for the immediate bottleneck. More robust alternatives exist for production scale:
+
+- **PgBouncer** — A connection pooler proxy that multiplexes many app connections over fewer DB connections. The production-grade solution for connection contention at scale, especially with multiple API instances.
+- **`Promise.all` in auth middleware** — The auth middleware runs 3 sequential DB queries per request. Parallelizing them would cut connection hold time by ~2/3 for auth alone, reducing contention without increasing pool size. This is addressed in Spec 4.1 (Cat 4).
+- **Throttle `UPDATE sessions SET last_activity`** — Currently runs on every request. Throttling to once per 60s would eliminate 1 query per request, freeing connections faster.
+- **Redis/in-memory caching for session lookups** — Would eliminate 2 of the 3 auth queries for repeat requests, dramatically reducing connection demand.
+- **Shorter `idleTimeoutMillis`** — Releasing idle connections faster (currently 30s) so they're available sooner for other requests.
+
+The most impactful alternative would be combining `Promise.all` in auth middleware with session update throttling — this would reduce per-request connection hold time enough that even 10 pool connections could handle c=50 without contention.
+
 ---
 
 ## 3.3 — Issues pagination
