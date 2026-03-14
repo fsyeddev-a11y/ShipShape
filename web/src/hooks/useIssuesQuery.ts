@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiPost, apiPatch } from '@/lib/api';
 import type { CascadeWarning, IncompleteChild, BelongsTo, BelongsToType } from '@ship/shared';
 
@@ -143,6 +143,59 @@ async function fetchIssues(filters?: IssueFilters): Promise<Issue[]> {
   }
 
   return issues;
+}
+
+// Paginated issues response from API
+interface PaginatedIssuesResponse {
+  issues: Issue[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+const ISSUES_PAGE_SIZE = 50;
+
+// Fetch a single page of issues (cursor-based)
+async function fetchIssuesPage(
+  filters?: IssueFilters,
+  cursor?: string
+): Promise<PaginatedIssuesResponse> {
+  const params = new URLSearchParams();
+  params.append('limit', String(ISSUES_PAGE_SIZE));
+  if (cursor) params.append('cursor', cursor);
+  if (filters?.programId) params.append('program_id', filters.programId);
+  if (filters?.sprintId) params.append('sprint_id', filters.sprintId);
+
+  const url = `/api/issues?${params.toString()}`;
+  const res = await apiGet(url);
+  if (!res.ok) {
+    const error = new Error('Failed to fetch issues') as Error & { status: number };
+    error.status = res.status;
+    throw error;
+  }
+  const data = await res.json() as { issues: Record<string, unknown>[]; nextCursor: string | null; hasMore: boolean };
+  let issues = data.issues.map(transformIssue);
+
+  if (filters?.projectId) {
+    issues = issues.filter(issue => {
+      const projectAssoc = issue.belongs_to?.find(a => a.type === 'project');
+      return projectAssoc?.id === filters.projectId;
+    });
+  }
+
+  return { issues, nextCursor: data.nextCursor, hasMore: data.hasMore };
+}
+
+// Infinite query hook for paginated issues
+export function useIssuesInfiniteQuery(filters?: IssueFilters, options?: UseIssuesQueryOptions) {
+  const { enabled = true } = options ?? {};
+  return useInfiniteQuery({
+    queryKey: [...issueKeys.list(filters), 'infinite'] as const,
+    queryFn: ({ pageParam }) => fetchIssuesPage(filters, pageParam as string | undefined),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.nextCursor ?? undefined : undefined,
+    staleTime: 1000 * 60 * 5,
+    enabled,
+  });
 }
 
 // Create issue

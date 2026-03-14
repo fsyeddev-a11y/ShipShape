@@ -15,7 +15,7 @@ import { useIssues } from '@/contexts/IssuesContext';
  */
 export function IssuesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { issues, loading, createIssue, updateIssue, refreshIssues } = useIssues();
+  const { issues, loading, createIssue, updateIssue, refreshIssues, fetchNextPage, hasNextPage, isFetchingNextPage } = useIssues();
 
   const stateFilter = searchParams.get('state') || '';
 
@@ -49,6 +49,8 @@ export function IssuesPage() {
       showPromoteToProject={true}
       headerContent={<h1 className="text-xl font-semibold text-foreground">Issues</h1>}
       selectionPersistenceKey="issues"
+      onLoadMore={hasNextPage ? fetchNextPage : undefined}
+      isLoadingMore={isFetchingNextPage}
     />
   );
 }

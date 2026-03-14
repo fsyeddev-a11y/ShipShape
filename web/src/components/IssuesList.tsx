@@ -176,6 +176,10 @@ export interface IssuesListProps {
   showBacklogPicker?: boolean;
   /** Allow toggling "Show All Issues" to display out-of-context issues with reduced opacity and '+' button */
   allowShowAllIssues?: boolean;
+  /** Callback to load more issues (infinite scroll) */
+  onLoadMore?: () => void;
+  /** Whether more issues are currently being loaded */
+  isLoadingMore?: boolean;
 }
 
 /**
@@ -226,6 +230,8 @@ export function IssuesList({
   enableInlineSprintAssignment = false,
   showBacklogPicker = false,
   allowShowAllIssues = false,
+  onLoadMore,
+  isLoadingMore = false,
 }: IssuesListProps) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -242,6 +248,26 @@ export function IssuesList({
     if (!sprintsData?.weeks) return [];
     return sprintsData.weeks.map(s => ({ id: s.id, name: s.name }));
   }, [sprintsData]);
+
+  // Refs for infinite scroll
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
+
+  // IntersectionObserver to trigger loading more issues
+  useEffect(() => {
+    if (!onLoadMore || !loadMoreSentinelRef.current) return;
+    const sentinel = loadMoreSentinelRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !isLoadingMore) {
+          onLoadMore();
+        }
+      },
+      { root: scrollContainerRef.current, rootMargin: '200px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [onLoadMore, isLoadingMore]);
 
   // Determine if we should self-fetch based on locked filters
   const shouldSelfFetch = Boolean(lockedProgramId || lockedProjectId || lockedSprintId);
@@ -1239,7 +1265,7 @@ export function IssuesList({
           onContextMenu={handleKanbanContextMenu}
         />
       ) : (
-        <div className="flex-1 overflow-auto pb-20">
+        <div className="flex-1 overflow-auto pb-20" ref={scrollContainerRef}>
           <SelectableList
             items={filteredIssues}
             renderRow={renderIssueRow}
@@ -1251,6 +1277,14 @@ export function IssuesList({
             ariaLabel="Issues list"
             initialSelectedIds={selectedIds}
           />
+          {onLoadMore && (
+            <div ref={loadMoreSentinelRef} className="h-1" />
+          )}
+          {isLoadingMore && (
+            <div className="flex justify-center py-4">
+              <div className="text-sm text-muted">Loading more issues...</div>
+            </div>
+          )}
         </div>
       )}
 

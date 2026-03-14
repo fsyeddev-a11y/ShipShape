@@ -17,7 +17,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   // Production-ready pool configuration
-  max: isProduction ? 20 : 10, // Max connections (default is 10)
+  max: parseInt(process.env.PG_POOL_MAX || (isProduction ? '25' : '10'), 10),
   idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
   connectionTimeoutMillis: 2000, // Fail fast if can't connect in 2 seconds
   maxUses: 7500, // Recycle connections after 7500 queries to prevent memory leaks
