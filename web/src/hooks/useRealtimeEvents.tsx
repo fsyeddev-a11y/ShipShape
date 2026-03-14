@@ -44,11 +44,17 @@ function getEventsWsUrl(): string {
     : `${wsProtocol}//${window.location.host}/events`;
 }
 
+// Exponential backoff constants
+const BASE_DELAY = 3000;    // 3s
+const MAX_DELAY = 60000;    // 60s
+const BACKOFF_FACTOR = 2;
+
 export function RealtimeEventsProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const subscribersRef = useRef<Map<RealtimeEventType, Set<EventCallback>>>(new Map());
+  const consecutiveFailuresRef = useRef(0);
   const [isConnected, setIsConnected] = useState(false);
 
   // Subscribe to events
@@ -75,6 +81,7 @@ export function RealtimeEventsProvider({ children }: { children: ReactNode }) {
 
     ws.onopen = () => {
       console.log('[RealtimeEvents] Connected');
+      consecutiveFailuresRef.current = 0;
       setIsConnected(true);
     };
 
@@ -93,8 +100,8 @@ export function RealtimeEventsProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    ws.onclose = () => {
-      console.log('[RealtimeEvents] Disconnected');
+    ws.onclose = (event: CloseEvent) => {
+      console.log('[RealtimeEvents] Disconnected, code:', event.code);
       setIsConnected(false);
       // Only nullify if this is still the current WebSocket
       // (avoids race where a new WS was created before old one finished closing)
@@ -102,12 +109,22 @@ export function RealtimeEventsProvider({ children }: { children: ReactNode }) {
         wsRef.current = null;
       }
 
-      // Reconnect after delay if user is still logged in
+      // 429 awareness — jump to higher backoff on rate limit
+      if (event.code === 429 || event.code === 4029) {
+        consecutiveFailuresRef.current = Math.max(consecutiveFailuresRef.current, 3); // Start at 24s minimum
+      }
+
+      // Reconnect with exponential backoff if user is still logged in
       if (user) {
+        const delay = Math.min(
+          BASE_DELAY * Math.pow(BACKOFF_FACTOR, consecutiveFailuresRef.current),
+          MAX_DELAY
+        );
+        consecutiveFailuresRef.current++;
+        console.log(`[RealtimeEvents] Reconnecting in ${delay}ms (attempt ${consecutiveFailuresRef.current})...`);
         reconnectTimeoutRef.current = setTimeout(() => {
-          console.log('[RealtimeEvents] Reconnecting...');
           connect();
-        }, 3000);
+        }, delay);
       }
     };
 

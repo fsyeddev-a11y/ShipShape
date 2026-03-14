@@ -137,6 +137,8 @@ export function useUpdateDocument() {
   return useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<WikiDocument> }) =>
       updateDocumentApi(id, updates),
+    retry: 3,
+    retryDelay: (attempt) => Math.pow(2, attempt) * 1000,
     onMutate: async ({ id, updates }) => {
       await queryClient.cancelQueries({ queryKey: documentKeys.lists() });
       const previousDocs = queryClient.getQueryData<WikiDocument[]>(documentKeys.wikiList());

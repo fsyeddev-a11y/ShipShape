@@ -319,6 +319,8 @@ export function useUpdateIssue() {
   return useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Issue> }) =>
       updateIssueApi(id, updates),
+    retry: 3,
+    retryDelay: (attempt) => Math.pow(2, attempt) * 1000,
     onMutate: async ({ id, updates }) => {
       await queryClient.cancelQueries({ queryKey: issueKeys.lists() });
       const previousIssues = queryClient.getQueryData<Issue[]>(issueKeys.lists());

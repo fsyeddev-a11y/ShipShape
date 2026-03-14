@@ -1028,7 +1028,9 @@ router.patch('/:id', authMiddleware, async (req: Request, res: Response) => {
 
     res.json({ ...issue, display_id: displayId, belongs_to: belongsTo });
   } catch (err) {
-    await client.query('ROLLBACK').catch(() => {});
+    await client.query('ROLLBACK').catch((rollbackErr) => {
+      console.error('ROLLBACK failed after transaction error:', rollbackErr);
+    });
     console.error('Update issue error:', err);
     res.status(500).json({ error: 'Internal server error' });
   } finally {

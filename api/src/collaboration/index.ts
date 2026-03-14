@@ -58,13 +58,25 @@ function isConnectionRateLimited(ip: string): boolean {
 }
 
 // Record a connection attempt from an IP
-function recordConnectionAttempt(ip: string): void {
+// Returns a release function to call when the connection closes
+function recordConnectionAttempt(ip: string): () => void {
   const now = Date.now();
   const attempts = connectionAttempts.get(ip) || [];
   attempts.push(now);
   // Keep only recent attempts to limit memory usage
   const recentAttempts = attempts.filter(t => now - t < RATE_LIMIT.CONNECTION_WINDOW_MS);
   connectionAttempts.set(ip, recentAttempts);
+
+  // Return release function — removes the oldest entry for this IP
+  return () => {
+    const current = connectionAttempts.get(ip);
+    if (current && current.length > 0) {
+      current.shift();
+      if (current.length === 0) {
+        connectionAttempts.delete(ip);
+      }
+    }
+  };
 }
 
 // Check if a WebSocket connection is rate limited for messages
@@ -622,18 +634,19 @@ export function setupCollaboration(server: Server) {
         socket.destroy();
         return;
       }
-      recordConnectionAttempt(clientIp);
+      const releaseEventsConn = recordConnectionAttempt(clientIp);
 
       // Validate session
       const sessionData = await validateWebSocketSession(request);
       if (!sessionData) {
+        releaseEventsConn();
         socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
         socket.destroy();
         return;
       }
 
       eventsWss.handleUpgrade(request, socket, head, (ws) => {
-        eventsWss.emit('connection', ws, sessionData);
+        eventsWss.emit('connection', ws, sessionData, releaseEventsConn);
       });
       return;
     }
@@ -654,11 +667,12 @@ export function setupCollaboration(server: Server) {
       socket.destroy();
       return;
     }
-    recordConnectionAttempt(clientIp);
+    const releaseCollabConn = recordConnectionAttempt(clientIp);
 
     // CRITICAL: Validate session before allowing WebSocket connection
     const sessionData = await validateWebSocketSession(request);
     if (!sessionData) {
+      releaseCollabConn();
       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
       socket.destroy();
       return;
@@ -670,17 +684,18 @@ export function setupCollaboration(server: Server) {
     // Check document access (visibility check)
     const canAccess = await canAccessDocumentForCollab(docId, sessionData.userId, sessionData.workspaceId);
     if (!canAccess) {
+      releaseCollabConn();
       socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
       socket.destroy();
       return;
     }
 
     wss.handleUpgrade(request, socket, head, (ws) => {
-      wss.emit('connection', ws, request, docName, sessionData);
+      wss.emit('connection', ws, request, docName, sessionData, releaseCollabConn);
     });
   });
 
-  wss.on('connection', async (ws: WebSocket, _request: IncomingMessage, docName: string, sessionData: { userId: string; workspaceId: string }) => {
+  wss.on('connection', async (ws: WebSocket, _request: IncomingMessage, docName: string, sessionData: { userId: string; workspaceId: string }, releaseConnection: () => void) => {
     const doc = await getOrCreateDoc(docName);
     const aw = getAwareness(docName, doc);
 
@@ -751,6 +766,8 @@ export function setupCollaboration(server: Server) {
         awarenessProtocol.removeAwarenessStates(aw, [conn.awarenessClientId], null);
         conns.delete(ws);
       }
+      // Release connection from rate limit counter
+      releaseConnection();
       // Clean up rate limiting data for this connection
       messageTimestamps.delete(ws);
       rateLimitViolations.delete(ws);
@@ -786,7 +803,7 @@ export function setupCollaboration(server: Server) {
   });
 
   // Handle events WebSocket connections (for real-time notifications)
-  eventsWss.on('connection', (ws: WebSocket, sessionData: { userId: string; workspaceId: string }) => {
+  eventsWss.on('connection', (ws: WebSocket, sessionData: { userId: string; workspaceId: string }, releaseConnection: () => void) => {
     eventConns.set(ws, { userId: sessionData.userId, workspaceId: sessionData.workspaceId });
     console.log(`[Events] User ${sessionData.userId} connected (${eventConns.size} total connections)`);
 
@@ -823,6 +840,7 @@ export function setupCollaboration(server: Server) {
 
     ws.on('close', () => {
       eventConns.delete(ws);
+      releaseConnection();
       rateLimitViolations.delete(ws);
       messageTimestamps.delete(ws);
       console.log(`[Events] User ${sessionData.userId} disconnected (${eventConns.size} total connections)`);

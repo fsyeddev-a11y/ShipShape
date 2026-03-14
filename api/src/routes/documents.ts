@@ -1090,7 +1090,9 @@ router.patch('/:id', authMiddleware, async (req: Request, res: Response) => {
       review_rating: props.review_rating,
     });
   } catch (err) {
-    await client.query('ROLLBACK').catch(() => {});
+    await client.query('ROLLBACK').catch((rollbackErr) => {
+      console.error('ROLLBACK failed after transaction error:', rollbackErr);
+    });
     console.error('Update document error:', err);
     res.status(500).json({ error: 'Internal server error' });
   } finally {

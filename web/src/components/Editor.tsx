@@ -256,6 +256,8 @@ export function Editor({
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('connecting');
   const [isBrowserOnline, setIsBrowserOnline] = useState(navigator.onLine);
+  const [connectionBlocked, setConnectionBlocked] = useState(false);
+  const consecutiveClosesRef = useRef(0);
   const [connectedUsers, setConnectedUsers] = useState<{ name: string; color: string }[]>([]);
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(() => {
     return localStorage.getItem('ship:rightSidebarCollapsed') === 'true';
@@ -414,8 +416,14 @@ export function Editor({
         if (cancelled) return; // Don't update state if effect was cleaned up
         console.log(`[Editor] WebSocket status: ${event.status} for ${roomPrefix}:${documentId}`);
         if (event.status === 'connected') {
+          consecutiveClosesRef.current = 0;
+          setConnectionBlocked(false);
           setSyncStatus('synced');
         } else if (event.status === 'disconnected') {
+          consecutiveClosesRef.current++;
+          if (consecutiveClosesRef.current >= 3) {
+            setConnectionBlocked(true);
+          }
           // If we have cached content, show 'cached' instead of 'disconnected'
           setSyncStatus(hasCachedContent ? 'cached' : 'disconnected');
         }
@@ -908,7 +916,7 @@ export function Editor({
                   {effectiveStatus === 'synced' && 'Saved'}
                   {effectiveStatus === 'cached' && 'Cached'}
                   {effectiveStatus === 'connecting' && 'Saving'}
-                  {effectiveStatus === 'disconnected' && 'Offline'}
+                  {effectiveStatus === 'disconnected' && (connectionBlocked ? 'Connection blocked \u2014 changes saved locally' : 'Offline')}
                 </span>
               </div>
             );
@@ -978,12 +986,19 @@ export function Editor({
               }}
               placeholder="Untitled"
               readOnly={titleReadOnly}
+              maxLength={255}
               rows={1}
               className={cn(
-                "mb-6 w-full bg-transparent text-3xl font-bold text-foreground placeholder:text-muted/30 focus:outline-none pl-8 resize-none overflow-hidden",
-                titleReadOnly && "cursor-default"
+                "w-full bg-transparent text-3xl font-bold text-foreground placeholder:text-muted/30 focus:outline-none pl-8 resize-none overflow-hidden",
+                titleReadOnly && "cursor-default",
+                title.length >= 230 ? "mb-1" : "mb-6"
               )}
             />
+            {title.length >= 230 && (
+              <span className="mb-4 pl-8 text-xs text-muted">
+                {title.length}/255
+              </span>
+            )}
             {contentBanner}
             <div
               className="tiptap-wrapper"
