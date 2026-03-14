@@ -618,18 +618,23 @@ router.get('/my-week', authMiddleware, async (req: Request, res: Response) => {
     // Get visibility context for filtering
     const { isAdmin } = await getVisibilityContext(userId, workspaceId);
 
-    // Get workspace sprint_start_date to calculate current sprint number
-    const workspaceResult = await pool.query(
-      `SELECT sprint_start_date FROM workspaces WHERE id = $1`,
-      [workspaceId]
-    );
+    // Use workspace config from auth middleware if available, fall back to query
+    let rawStartDate: string | Date | null = null;
+    if (req.workspaceConfig?.sprint_start_date !== undefined) {
+      rawStartDate = req.workspaceConfig.sprint_start_date;
+    } else {
+      const workspaceResult = await pool.query(
+        `SELECT sprint_start_date FROM workspaces WHERE id = $1`,
+        [workspaceId]
+      );
 
-    if (workspaceResult.rows.length === 0) {
-      res.status(404).json({ error: 'Workspace not found' });
-      return;
+      if (workspaceResult.rows.length === 0) {
+        res.status(404).json({ error: 'Workspace not found' });
+        return;
+      }
+
+      rawStartDate = workspaceResult.rows[0].sprint_start_date;
     }
-
-    const rawStartDate = workspaceResult.rows[0].sprint_start_date;
     const sprintDuration = 7;
 
     // Calculate current sprint number
@@ -693,17 +698,13 @@ router.get('/my-week', authMiddleware, async (req: Request, res: Response) => {
         i.ticket_number, i.created_at as issue_created_at, i.updated_at as issue_updated_at,
         s.id as sprint_id, s.title as sprint_name, s.properties as sprint_properties,
         p.id as program_id, p.title as program_name, p.properties->>'prefix' as program_prefix,
-        u.name as assignee_name,
-        CASE WHEN person_doc.archived_at IS NOT NULL THEN true ELSE false END as assignee_archived
+        u.name as assignee_name
        FROM documents i
        JOIN document_associations da ON da.document_id = i.id AND da.relationship_type = 'sprint'
        JOIN documents s ON s.id = da.related_id AND s.document_type = 'sprint'
        LEFT JOIN document_associations prog_da ON prog_da.document_id = s.id AND prog_da.relationship_type = 'program'
        LEFT JOIN documents p ON prog_da.related_id = p.id
        LEFT JOIN users u ON (i.properties->>'assignee_id')::uuid = u.id
-       LEFT JOIN documents person_doc ON person_doc.workspace_id = i.workspace_id
-         AND person_doc.document_type = 'person'
-         AND person_doc.properties->>'user_id' = i.properties->>'assignee_id'
        WHERE i.workspace_id = $1
          AND i.document_type = 'issue'
          AND (s.properties->>'sprint_number')::int = $2
@@ -1612,14 +1613,10 @@ router.get('/:id/issues', authMiddleware, async (req: Request, res: Response) =>
     const result = await pool.query(
       `SELECT d.id, d.title, d.properties, d.ticket_number,
               d.created_at, d.updated_at, d.created_by,
-              u.name as assignee_name,
-              CASE WHEN person_doc.archived_at IS NOT NULL THEN true ELSE false END as assignee_archived
+              u.name as assignee_name
        FROM documents d
        JOIN document_associations sprint_da ON sprint_da.document_id = d.id AND sprint_da.related_id = $1 AND sprint_da.relationship_type = 'sprint'
        LEFT JOIN users u ON (d.properties->>'assignee_id')::uuid = u.id
-       LEFT JOIN documents person_doc ON person_doc.workspace_id = d.workspace_id
-         AND person_doc.document_type = 'person'
-         AND person_doc.properties->>'user_id' = d.properties->>'assignee_id'
        WHERE d.document_type = 'issue'
          AND ${VISIBILITY_FILTER_SQL('d', '$2', '$3')}
        ORDER BY
@@ -1810,16 +1807,23 @@ router.get('/:id/scope-changes', authMiddleware, async (req: Request, res: Respo
       [id, sprintStartDate.toISOString()]
     );
 
-    for (const row of removedResult.rows) {
-      // We need the estimate of the issue at time of removal
-      // For simplicity, we'll use the current estimate (or 0 if issue no longer in sprint)
-      // In a real system, you might want to track historical estimates
-      const issueResult = await pool.query(
-        `SELECT COALESCE((properties->>'estimate')::numeric, 0) as estimate
-         FROM documents WHERE id = $1`,
-        [row.document_id]
+    // Batch-fetch estimates for all removed issues in one query (eliminates N+1)
+    const removedDocIds = removedResult.rows.map((r: { document_id: string }) => r.document_id);
+    const removedEstimateMap = new Map<string, number>();
+
+    if (removedDocIds.length > 0) {
+      const estimatesResult = await pool.query(
+        `SELECT id, COALESCE((properties->>'estimate')::numeric, 0) as estimate
+         FROM documents WHERE id = ANY($1::uuid[])`,
+        [removedDocIds]
       );
-      const estimate = issueResult.rows[0] ? parseFloat(issueResult.rows[0].estimate) : 0;
+      for (const r of estimatesResult.rows) {
+        removedEstimateMap.set(r.id, parseFloat(r.estimate));
+      }
+    }
+
+    for (const row of removedResult.rows) {
+      const estimate = removedEstimateMap.get(row.document_id) || 0;
 
       scopeChanges.push({
         timestamp: new Date(row.created_at).toISOString(),

@@ -47,18 +47,23 @@ router.get('/my-work', authMiddleware, async (req: Request, res: Response) => {
     // Get visibility context for filtering
     const { isAdmin } = await getVisibilityContext(userId, workspaceId);
 
-    // Get workspace sprint configuration to calculate current sprint number
-    const workspaceResult = await pool.query(
-      `SELECT sprint_start_date FROM workspaces WHERE id = $1`,
-      [workspaceId]
-    );
+    // Use workspace config from auth middleware if available, fall back to query
+    let rawStartDate: string | Date | null = null;
+    if (req.workspaceConfig?.sprint_start_date !== undefined) {
+      rawStartDate = req.workspaceConfig.sprint_start_date;
+    } else {
+      const workspaceResult = await pool.query(
+        `SELECT sprint_start_date FROM workspaces WHERE id = $1`,
+        [workspaceId]
+      );
 
-    if (workspaceResult.rows.length === 0) {
-      res.status(404).json({ error: 'Workspace not found' });
-      return;
+      if (workspaceResult.rows.length === 0) {
+        res.status(404).json({ error: 'Workspace not found' });
+        return;
+      }
+
+      rawStartDate = workspaceResult.rows[0].sprint_start_date;
     }
-
-    const rawStartDate = workspaceResult.rows[0].sprint_start_date;
     const sprintDuration = 7; // 7-day sprints
 
     // Calculate the current sprint number
