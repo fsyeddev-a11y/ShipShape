@@ -667,9 +667,18 @@ export function Editor({
     editorProps: {
       attributes: {
         class: 'prose prose-invert prose-sm max-w-none focus:outline-none min-h-[300px]',
+        'aria-expanded': undefined as unknown as string, // Remove invalid aria-expanded from textbox role
       },
     },
   }, [provider, documentType, codeBlockExt, uploadExts]);
+
+  // Remove aria-expanded from ProseMirror element (invalid on role="textbox")
+  useEffect(() => {
+    if (editor) {
+      const el = editor.view.dom;
+      el.removeAttribute('aria-expanded');
+    }
+  }, [editor]);
 
   // Refs for stable comment callbacks (avoid re-render loops)
   const commentsRef = useRef(comments);
@@ -989,7 +998,7 @@ export function Editor({
               maxLength={255}
               rows={1}
               className={cn(
-                "w-full bg-transparent text-3xl font-bold text-foreground placeholder:text-muted/30 focus:outline-none pl-8 resize-none overflow-hidden",
+                "w-full bg-transparent text-3xl font-bold text-foreground placeholder:text-[#767676] focus:outline-none pl-8 resize-none overflow-hidden",
                 titleReadOnly && "cursor-default",
                 title.length >= 230 ? "mb-1" : "mb-6"
               )}

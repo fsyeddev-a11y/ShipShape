@@ -243,6 +243,7 @@ export function BacklogPickerModal({ isOpen, onClose, context, onIssuesAdded }: 
           <div className="flex-1">
             <input
               type="text"
+              aria-label="Search backlog items"
               placeholder="Search issues..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
