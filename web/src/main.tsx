@@ -53,6 +53,50 @@ import { ToastProvider } from '@/components/ui/Toast';
 import { MutationErrorToast } from '@/components/MutationErrorToast';
 import './index.css';
 
+interface RootErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class RootErrorBoundary extends React.Component<{ children: React.ReactNode }, RootErrorBoundaryState> {
+  state: RootErrorBoundaryState = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error: Error): RootErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div role="alert" style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif', maxWidth: '600px', margin: '4rem auto' }}>
+          <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Something went wrong</h1>
+          <p style={{ color: '#666', marginBottom: '1.5rem' }}>
+            The application encountered an unexpected error. Please refresh the page.
+          </p>
+          {this.state.error && (
+            <pre style={{ fontSize: '0.8rem', color: '#999', whiteSpace: 'pre-wrap', marginBottom: '1.5rem' }}>
+              {this.state.error.message}
+            </pre>
+          )}
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '0.5rem 1rem',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              background: '#fff',
+              cursor: 'pointer',
+            }}
+          >
+            Refresh
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 /**
  * Redirect component for type-specific routes to canonical /documents/:id
  * Uses replace to ensure browser history only has one entry
@@ -268,23 +312,25 @@ function AppRoutes() {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{ persister: queryPersister }}
-    >
-      <ToastProvider>
-        <MutationErrorToast />
-        <BrowserRouter>
-          <ReviewQueueProvider>
-            <App />
-          </ReviewQueueProvider>
-        </BrowserRouter>
-      </ToastProvider>
-      {ReactQueryDevtools && (
-        <Suspense fallback={null}>
-          <ReactQueryDevtools initialIsOpen={false} />
-        </Suspense>
-      )}
-    </PersistQueryClientProvider>
+    <RootErrorBoundary>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister: queryPersister }}
+      >
+        <ToastProvider>
+          <MutationErrorToast />
+          <BrowserRouter>
+            <ReviewQueueProvider>
+              <App />
+            </ReviewQueueProvider>
+          </BrowserRouter>
+        </ToastProvider>
+        {ReactQueryDevtools && (
+          <Suspense fallback={null}>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </Suspense>
+        )}
+      </PersistQueryClientProvider>
+    </RootErrorBoundary>
   </React.StrictMode>
 );
