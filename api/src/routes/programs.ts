@@ -380,15 +380,11 @@ router.get('/:id/issues', authMiddleware, async (req: Request, res: Response) =>
       `SELECT d.id, d.title, d.properties, d.ticket_number,
               d.created_at, d.updated_at, d.created_by,
               u.name as assignee_name,
-              CASE WHEN person_doc.archived_at IS NOT NULL THEN true ELSE false END as assignee_archived,
               sprint_da.related_id as sprint_id
        FROM documents d
        JOIN document_associations da ON da.document_id = d.id AND da.related_id = $1 AND da.relationship_type = 'program'
        LEFT JOIN document_associations sprint_da ON sprint_da.document_id = d.id AND sprint_da.relationship_type = 'sprint'
        LEFT JOIN users u ON (d.properties->>'assignee_id')::uuid = u.id
-       LEFT JOIN documents person_doc ON person_doc.workspace_id = d.workspace_id
-         AND person_doc.document_type = 'person'
-         AND person_doc.properties->>'user_id' = d.properties->>'assignee_id'
        WHERE d.document_type = 'issue'
          AND ${VISIBILITY_FILTER_SQL('d', '$2', '$3')}
        ORDER BY

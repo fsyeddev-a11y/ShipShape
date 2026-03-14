@@ -13,6 +13,7 @@ declare global {
       workspaceId?: string;
       isSuperAdmin?: boolean;
       isApiToken?: boolean; // True when authenticated via API token
+      workspaceConfig?: { sprint_start_date: string | null };
     }
   }
 }
@@ -123,12 +124,16 @@ export async function authMiddleware(
   }
 
   try {
-    // Get session and check if it's valid
+    // Get session, user, workspace membership, and workspace config in a single query
     const result = await pool.query(
       `SELECT s.id, s.user_id, s.workspace_id, s.expires_at, s.last_activity, s.created_at,
-              u.is_super_admin
+              u.is_super_admin,
+              wm.id AS membership_id,
+              w.sprint_start_date
        FROM sessions s
        JOIN users u ON s.user_id = u.id
+       LEFT JOIN workspace_memberships wm ON wm.workspace_id = s.workspace_id AND wm.user_id = s.user_id
+       LEFT JOIN workspaces w ON w.id = s.workspace_id
        WHERE s.id = $1`,
       [sessionId]
     );
@@ -182,12 +187,7 @@ export async function authMiddleware(
 
     // Verify user still has access to the workspace (unless super-admin)
     if (session.workspace_id && !session.is_super_admin) {
-      const membershipResult = await pool.query(
-        'SELECT id FROM workspace_memberships WHERE workspace_id = $1 AND user_id = $2',
-        [session.workspace_id, session.user_id]
-      );
-
-      if (!membershipResult.rows[0]) {
+      if (!session.membership_id) {
         // User no longer has access - delete session
         await pool.query('DELETE FROM sessions WHERE id = $1', [sessionId]);
 
@@ -202,11 +202,14 @@ export async function authMiddleware(
       }
     }
 
-    // Update last activity
-    await pool.query(
-      'UPDATE sessions SET last_activity = $1 WHERE id = $2',
-      [now, sessionId]
-    );
+    // Throttle last_activity UPDATE to once per minute
+    const LAST_ACTIVITY_THROTTLE_MS = 60_000;
+    if (inactivityMs > LAST_ACTIVITY_THROTTLE_MS) {
+      await pool.query(
+        'UPDATE sessions SET last_activity = $1 WHERE id = $2',
+        [now, sessionId]
+      );
+    }
 
     // Refresh cookie with sliding expiration (throttled to avoid overhead)
     // Only refresh if more than 60 seconds since last activity
@@ -226,6 +229,11 @@ export async function authMiddleware(
     req.userId = session.user_id;
     req.workspaceId = session.workspace_id;
     req.isSuperAdmin = session.is_super_admin;
+
+    // Attach workspace config so routes can avoid redundant sprint_start_date queries
+    if (session.sprint_start_date !== undefined) {
+      req.workspaceConfig = { sprint_start_date: session.sprint_start_date };
+    }
 
     next();
   } catch (error) {
