@@ -56,6 +56,7 @@ export function EmojiPickerPopover({ value, onChange, children, className }: Emo
     <div ref={containerRef} className={cn('relative', className)}>
       <button
         type="button"
+        aria-label="Choose document icon"
         onClick={() => setIsOpen(!isOpen)}
         className="focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background rounded"
       >

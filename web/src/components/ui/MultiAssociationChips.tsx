@@ -172,6 +172,7 @@ export function MultiAssociationChips({
                 <input
                   ref={inputRef}
                   type="text"
+                  aria-label="Search associations"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search..."

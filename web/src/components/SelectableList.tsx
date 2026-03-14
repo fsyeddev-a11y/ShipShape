@@ -239,7 +239,7 @@ function SelectableRow({
       data-selected={isSelected}
       data-focused={isFocused}
       className={cn(
-        'group cursor-pointer border-b border-border/50 transition-colors',
+        'group cursor-pointer border-b border-border/50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         isSelected && 'bg-accent/10',
         isFocused && 'ring-2 ring-accent ring-inset',
         !isSelected && 'hover:bg-border/30'
