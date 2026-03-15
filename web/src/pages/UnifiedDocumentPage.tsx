@@ -10,6 +10,7 @@ import { useProjectsQuery } from '@/hooks/useProjectsQuery';
 import { useDocumentConversion } from '@/hooks/useDocumentConversion';
 import { apiGet, apiPatch, apiDelete, apiPost } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
+import { useRealtimeEvent } from '@/hooks/useRealtimeEvents';
 import { issueKeys } from '@/hooks/useIssuesQuery';
 import { projectKeys, useProjectWeeksQuery } from '@/hooks/useProjectsQuery';
 import { TabBar } from '@/components/ui/TabBar';
@@ -232,6 +233,16 @@ export function UnifiedDocumentPage() {
   const handleDocumentConverted = useCallback((newDocId: string) => {
     navigate(`/documents/${newDocId}`, { replace: true });
   }, [navigate]);
+
+  // Listen for title changes from other users via WebSocket
+  useRealtimeEvent('title:updated', useCallback((event) => {
+    const { documentId, title } = event.data as { documentId: string; title: string };
+    if (documentId === id) {
+      queryClient.setQueryData<DocumentResponse>(['document', documentId], (old) =>
+        old ? { ...old, title } : old
+      );
+    }
+  }, [id, queryClient]));
 
   // Update mutation with optimistic updates
   const updateMutation = useMutation({

@@ -3,7 +3,7 @@ import { pool } from '../db/client.js';
 import { z } from 'zod';
 import { authMiddleware } from '../middleware/auth.js';
 import { isWorkspaceAdmin } from '../middleware/visibility.js';
-import { handleVisibilityChange, handleDocumentConversion, invalidateDocumentCache, broadcastToUser } from '../collaboration/index.js';
+import { handleVisibilityChange, handleDocumentConversion, invalidateDocumentCache, broadcastToUser, broadcastToWorkspace } from '../collaboration/index.js';
 import { extractHypothesisFromContent, extractSuccessCriteriaFromContent, extractVisionFromContent, extractGoalsFromContent, checkDocumentCompleteness } from '../utils/extractHypothesis.js';
 import { loadContentFromYjsState } from '../utils/yjsConverter.js';
 
@@ -1018,6 +1018,14 @@ router.patch('/:id', authMiddleware, async (req: Request, res: Response) => {
     await client.query('COMMIT');
 
     // Post-commit operations (non-transactional)
+
+    // Broadcast title change to other users in the workspace
+    if (data.title !== undefined) {
+      broadcastToWorkspace(workspaceId, userId, 'title:updated', {
+        documentId: id,
+        title: data.title,
+      });
+    }
 
     // Invalidate collaboration cache when content is updated via API
     if (contentUpdated) {

@@ -60,6 +60,7 @@ Specs derived from the [audit report](../../audit/audit-report.md) and previous 
 | 6.3 | [WS Rate Limit Connection Tracking](cat6-ws-rate-limit-tracking.md) | Remove closed connections from rate limit counter | High |
 | 6.4 | [Title maxLength Guard](cat6-title-maxlength.md) | Add maxLength={255} + character counter to title textarea | Medium |
 | 6.5 | [Silent Save Failure Handling](cat6-silent-save-failure.md) | Surface ROLLBACK errors + DB save failures to users | Medium |
+| 6.6 | [Title Real-Time Sync Failure](cat6-title-realtime-sync.md) | Broadcast title changes via /events WebSocket + fix useAutoSave throttle double-fire | Medium-High |
 
 ## Category 7 — Accessibility
 
