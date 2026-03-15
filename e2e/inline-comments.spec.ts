@@ -24,8 +24,8 @@ test.describe('Inline Comments', () => {
     const editor = page.locator('.ProseMirror')
     await editor.click()
     await page.keyboard.type(text, { delay: 5 })
-    // Wait for content to sync
-    await page.waitForTimeout(500)
+    // Wait for content to appear in editor
+    await expect(editor).toContainText(text, { timeout: 5000 })
   }
 
   /**
@@ -54,7 +54,8 @@ test.describe('Inline Comments', () => {
         offset += len
       }
     }, target)
-    await page.waitForTimeout(400)
+    // Wait for bubble menu to appear after selection
+    await expect(page.getByRole('button', { name: 'Comment' })).toBeVisible({ timeout: 3000 })
   }
 
   test('bubble menu shows Comment button on text selection', async ({ page }) => {
