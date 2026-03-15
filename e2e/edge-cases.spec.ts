@@ -15,7 +15,6 @@ async function login(page: Page) {
 // Helper to create a new document
 async function createNewDocument(page: Page) {
   await page.goto('/docs')
-  await page.waitForLoadState('networkidle')
 
   const currentUrl = page.url()
 

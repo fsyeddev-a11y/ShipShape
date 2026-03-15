@@ -18,7 +18,6 @@ import * as os from 'os'
 // Helper to create a new document
 async function createNewDocument(page: Page) {
   await page.goto('/docs')
-  await page.waitForLoadState('networkidle')
 
   const currentUrl = page.url()
   // Button uses aria-label, not title attribute

@@ -4,9 +4,6 @@ import { test, expect, Page } from './fixtures/isolated-env';
 async function createNewDocument(page: Page) {
   await page.goto('/docs');
 
-  // Wait for the page to stabilize (may auto-redirect to existing doc)
-  await page.waitForLoadState('networkidle');
-
   // Get current URL to detect change after clicking
   const currentUrl = page.url();
 
