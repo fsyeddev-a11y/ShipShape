@@ -51,7 +51,7 @@ test.describe('Phase 1: Critical Violations', () => {
     test('status indicators have icons not just colors', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // MUST have status indicators - this test requires them to exist
       const statusIndicators = page.locator('[data-status-indicator]')
@@ -71,7 +71,7 @@ test.describe('Phase 1: Critical Violations', () => {
     test('screen readers can identify issue state without color', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // MUST have status indicators
       const statusIndicators = page.locator('[data-status-indicator]')
@@ -93,16 +93,15 @@ test.describe('Phase 1: Critical Violations', () => {
     test('kanban board has keyboard instructions', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Switch to kanban view (default is list view)
       const kanbanViewButton = page.getByRole('button', { name: 'Kanban view' })
       await kanbanViewButton.click()
-      await page.waitForTimeout(500)
 
       // Kanban board MUST exist with role="application" for drag-drop
       const kanban = page.locator('[role="application"]')
-      await expect(kanban).toHaveCount(1)
+      await expect(kanban).toBeVisible({ timeout: 5000 })
 
       // MUST have aria-label with keyboard instructions
       const ariaLabel = await kanban.getAttribute('aria-label')
@@ -116,13 +115,13 @@ test.describe('Phase 1: Critical Violations', () => {
     test('sync status has aria-live region', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Open a document to see sync status
       const docLink = page.locator('a[href*="/documents/"]').first()
       await expect(docLink).toBeVisible({ timeout: 5000 })
       await docLink.click()
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Editor sync status MUST have role="status" and aria-live="polite"
       // Note: Multiple status regions exist (sync status, pending count, etc.), so we target specifically
@@ -145,33 +144,31 @@ test.describe('Phase 1: Critical Violations', () => {
     test('combobox has required ARIA attributes', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Open an issue to see comboboxes in properties sidebar
       const issueLink = page.locator('a[href*="/documents/"]').first()
       await expect(issueLink).toBeVisible({ timeout: 5000 })
       await issueLink.click()
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // MUST have at least one combobox (status, assignee, etc.)
       const combobox = page.locator('[aria-haspopup="listbox"], [role="combobox"]').first()
       await expect(combobox).toBeVisible({ timeout: 5000 })
 
-      // MUST have aria-controls pointing to the listbox
+      // MUST have aria-controls pointing to the listbox (retrying assertion)
+      await expect(combobox).toHaveAttribute('aria-controls', /.+/, { timeout: 5000 })
       const ariaControls = await combobox.getAttribute('aria-controls')
-      expect(ariaControls).toBeTruthy()
 
-      // MUST have aria-expanded attribute
-      const ariaExpanded = await combobox.getAttribute('aria-expanded')
-      expect(ariaExpanded).not.toBeNull()
+      // MUST have aria-expanded attribute (retrying assertion)
+      await expect(combobox).toHaveAttribute('aria-expanded', /.+/, { timeout: 5000 })
 
       // Click to open and verify listbox appears
       await combobox.click()
-      await page.waitForTimeout(300)
 
       // The controlled listbox MUST exist when expanded
       const listbox = page.locator(`#${ariaControls}, [role="listbox"]`)
-      await expect(listbox).toBeVisible({ timeout: 2000 })
+      await expect(listbox).toBeVisible({ timeout: 5000 })
 
       // Close by pressing Escape
       await page.keyboard.press('Escape')
@@ -207,7 +204,7 @@ test.describe('Phase 1: Critical Violations', () => {
   test.describe('1.6 Skip Navigation Links (WCAG 2.4.1)', () => {
     test('skip links exist and become visible on focus', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Skip link MUST exist (may be visually hidden until focused)
       const skipLink = page.locator('a[href="#main-content"], a:has-text("Skip to main"), .skip-link')
@@ -215,10 +212,9 @@ test.describe('Phase 1: Critical Violations', () => {
 
       // Tab to first focusable element - should be skip link
       await page.keyboard.press('Tab')
-      await page.waitForTimeout(100)
 
       // Skip link MUST become visible on focus
-      await expect(skipLink.first()).toBeVisible({ timeout: 1000 })
+      await expect(skipLink.first()).toBeVisible({ timeout: 2000 })
 
       // Skip link MUST have descriptive text
       const linkText = await skipLink.first().textContent()
@@ -227,7 +223,7 @@ test.describe('Phase 1: Critical Violations', () => {
 
     test('skip link targets exist and work', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Main content target MUST exist
       const mainContent = page.locator('#main-content, main')
@@ -236,7 +232,9 @@ test.describe('Phase 1: Critical Violations', () => {
       // Tab to skip link and activate it
       await page.keyboard.press('Tab')
       await page.keyboard.press('Enter')
-      await page.waitForTimeout(200)
+
+      // Wait for focus to move, then verify it moved to main content area
+      await expect(page.locator('#main-content, main').first()).toBeVisible({ timeout: 2000 })
 
       // Focus MUST move to main content area
       const focusedElement = await page.evaluate(() => {
@@ -261,7 +259,7 @@ test.describe('Phase 1: Critical Violations', () => {
   test.describe('1.7 SVG Icon Accessibility (WCAG 4.1.2)', () => {
     test('decorative icons are hidden from screen readers', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Icons inside buttons should be aria-hidden
       const buttonsWithIcons = page.locator('button svg, a svg')
@@ -285,11 +283,10 @@ test.describe('Phase 1: Critical Violations', () => {
 
       // Submit empty form to trigger validation error
       await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-      await page.waitForTimeout(500)
 
       // Error message MUST appear
       const errorMessage = page.locator('[role="alert"], .error-message, [id*="error"]')
-      await expect(errorMessage.first()).toBeVisible({ timeout: 3000 })
+      await expect(errorMessage.first()).toBeVisible({ timeout: 5000 })
 
       // Error MUST have an id
       const errorId = await errorMessage.first().getAttribute('id')
@@ -314,7 +311,9 @@ test.describe('Phase 1: Critical Violations', () => {
       // Fill only email, leave password empty, then submit
       await page.locator('#email').fill('test@example.com')
       await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-      await page.waitForTimeout(500)
+
+      // Wait for form validation to process
+      await expect(page.locator('[role="alert"], .error-message, [id*="error"], [aria-invalid="true"]').first()).toBeVisible({ timeout: 5000 })
 
       // Password field MUST have aria-invalid="true" if empty
       const passwordField = page.locator('#password, [type="password"]')
@@ -332,14 +331,13 @@ test.describe('Phase 1: Critical Violations', () => {
   test.describe('1.9 Focus Not Obscured (WCAG 2.4.11)', () => {
     test('focused elements are not hidden by overlays', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Tab through several elements
       for (let i = 0; i < 5; i++) {
         await page.keyboard.press('Tab')
-        await page.waitForTimeout(100)
 
-        // Get the focused element
+        // Verify the focused element is visible
         const focused = await page.evaluate(() => {
           const el = document.activeElement
           if (!el) return null
@@ -358,7 +356,7 @@ test.describe('Phase 1: Critical Violations', () => {
     test('images have alt attributes', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       const images = page.locator('img')
       const count = await images.count()
@@ -386,7 +384,7 @@ test.describe('Phase 1: Critical Violations', () => {
     test('pages have logical heading hierarchy', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Get all headings
       const headings = await page.evaluate(() => {
@@ -409,7 +407,7 @@ test.describe('Phase 1: Critical Violations', () => {
     test('controls shown on hover are also shown on focus', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Tree items MUST exist
       const treeItems = page.locator('[role="treeitem"], .tree-item, [data-tree-item]')
@@ -418,7 +416,7 @@ test.describe('Phase 1: Critical Violations', () => {
       // Focus the first tree item
       const treeItem = treeItems.first()
       await treeItem.focus()
-      await page.waitForTimeout(200)
+      await expect(treeItem).toBeFocused({ timeout: 2000 })
 
       // When focused, any action buttons MUST be visible (not just on hover)
       const actionButtons = treeItem.locator('button, [role="button"]')
@@ -438,7 +436,7 @@ test.describe('Phase 1: Critical Violations', () => {
 
       // Verify hover and focus parity: hover over item
       await treeItem.hover()
-      await page.waitForTimeout(200)
+      await expect(treeItem).toBeVisible({ timeout: 2000 })
 
       const hoverVisibleButtons: boolean[] = []
       for (let i = 0; i < buttonCount; i++) {
@@ -447,7 +445,7 @@ test.describe('Phase 1: Critical Violations', () => {
 
       // Focus again
       await treeItem.focus()
-      await page.waitForTimeout(200)
+      await expect(treeItem).toBeFocused({ timeout: 2000 })
 
       // Same buttons MUST be visible on focus as on hover
       for (let i = 0; i < buttonCount; i++) {
@@ -466,7 +464,7 @@ test.describe('Phase 2: Serious Violations', () => {
   test.describe('2.1 Command Palette Modal (WCAG 4.1.2)', () => {
     test('command palette opens and has proper dialog role', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Open command palette with Cmd+K (or Ctrl+K on non-Mac)
       await page.keyboard.press('Meta+k')
@@ -491,7 +489,7 @@ test.describe('Phase 2: Serious Violations', () => {
 
     test('command palette traps focus', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Open command palette
       await page.keyboard.press('Meta+k')
@@ -523,7 +521,7 @@ test.describe('Phase 2: Serious Violations', () => {
     test('interactive elements meet 24px minimum target size', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Check chevron/expand buttons - MUST have some buttons with icons
       const smallButtons = page.locator('button svg').locator('..')
@@ -548,7 +546,7 @@ test.describe('Phase 2: Serious Violations', () => {
   test.describe('2.3 Link Purpose (WCAG 2.4.4)', () => {
     test('links have accessible names describing destination', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       const links = page.locator('a[href]')
       const count = await links.count()
@@ -595,7 +593,7 @@ test.describe('Phase 2: Serious Violations', () => {
     test('select elements have associated labels', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Application MUST have select/combobox elements for filtering/properties
       const selects = page.locator('select, [role="combobox"], [role="listbox"]')
@@ -625,7 +623,7 @@ test.describe('Phase 2: Serious Violations', () => {
       await login(page)
       // Navigate to a page with tabs (issues has status tabs, docs has view tabs)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Tablist MUST exist
       const tablist = page.locator('[role="tablist"]')
@@ -659,7 +657,6 @@ test.describe('Phase 2: Serious Violations', () => {
       // Store tab text before clicking (locators re-evaluate, so we need to identify the specific tab)
       const tabText = await unselectedTab.textContent()
       await unselectedTab.click()
-      await page.waitForTimeout(200)
 
       // The clicked tab MUST now be selected - find by its text content
       const clickedTab = tablist.locator('[role="tab"]').filter({ hasText: tabText || '' })
@@ -672,13 +669,13 @@ test.describe('Phase 2: Serious Violations', () => {
     test('auto-save has status announcement', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Open a document to see auto-save
       const docLink = page.locator('a[href*="/documents/"]').first()
       await expect(docLink).toBeVisible({ timeout: 5000 })
       await docLink.click()
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Status region MUST exist for auto-save announcements
       // Use specific testid since there are multiple status elements (sync-status, pending-sync-count)
@@ -695,13 +692,13 @@ test.describe('Phase 2: Serious Violations', () => {
     test('Escape key deselects image in editor', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Open a document with content
       const docLink = page.locator('a[href*="/documents/"]').first()
       await expect(docLink).toBeVisible({ timeout: 5000 })
       await docLink.click()
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Find an image in the editor
       const image = page.locator('.ProseMirror img, [data-type="image"]').first()
@@ -711,7 +708,6 @@ test.describe('Phase 2: Serious Violations', () => {
       if (imageCount > 0) {
         // Click to select the image
         await image.click()
-        await page.waitForTimeout(200)
 
         // Image MUST be selected (resize handles or selection state)
         const isSelected = await image.evaluate((el) => {
@@ -722,7 +718,6 @@ test.describe('Phase 2: Serious Violations', () => {
 
         // Press Escape - MUST deselect
         await page.keyboard.press('Escape')
-        await page.waitForTimeout(200)
 
         // Image MUST no longer be selected
         const stillSelected = await image.evaluate((el) => {
@@ -737,7 +732,7 @@ test.describe('Phase 2: Serious Violations', () => {
   test.describe('2.9 Color Contrast (WCAG 1.4.3)', () => {
     test('no color contrast violations on main pages', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2aa'])
@@ -760,7 +755,8 @@ test.describe('Phase 2: Serious Violations', () => {
       await page.locator('#password').fill('wrongpassword')
       await page.getByRole('button', { name: 'Sign in', exact: true }).click()
 
-      await page.waitForTimeout(1000)
+      // Wait for error message to appear
+      await expect(page.locator('[role="alert"], .error').first()).toBeVisible({ timeout: 5000 })
 
       // Error message should provide helpful suggestion
       const errorText = await page.locator('[role="alert"], .error').textContent()
@@ -774,7 +770,7 @@ test.describe('Phase 2: Serious Violations', () => {
   test.describe('2.11 Landmark Regions (WCAG 1.3.6)', () => {
     test('page has proper landmark structure matching 4-panel layout', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // MUST have exactly the landmark structure from the plan:
       // nav (icon rail) → aside (sidebar) → main (editor) → aside (properties)
@@ -797,7 +793,7 @@ test.describe('Phase 2: Serious Violations', () => {
       const docLink = page.locator('a[href*="/documents/"]').first()
       if (await docLink.isVisible({ timeout: 3000 }).catch(() => false)) {
         await docLink.click()
-        await page.waitForLoadState('networkidle')
+        await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
         const propertiesAside = page.locator('aside[aria-label="Document properties"], #properties-panel')
         await expect(propertiesAside).toHaveCount(1)
       }
@@ -805,13 +801,13 @@ test.describe('Phase 2: Serious Violations', () => {
 
     test('landmarks appear in correct DOM order for screen readers', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Navigate to a document to get the full 4-panel layout with properties sidebar
       const docLink = page.locator('a[href*="/documents/"]').first()
       if (await docLink.isVisible({ timeout: 3000 }).catch(() => false)) {
         await docLink.click()
-        await page.waitForLoadState('networkidle')
+        await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
       }
 
       // Get all landmarks in DOM order
@@ -846,13 +842,13 @@ test.describe('Phase 2: Serious Violations', () => {
     test('properties sidebar forms have proper labels', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Issue link MUST exist
       const issueLink = page.locator('a[href*="/documents/"]').first()
       await expect(issueLink).toBeVisible({ timeout: 5000 })
       await issueLink.click()
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Properties panel MUST exist (it's part of the 4-panel layout)
       const propertiesPanel = page.locator('#properties-panel, aside[aria-label="Document properties"]').first()
@@ -889,12 +885,12 @@ test.describe('Phase 2: Serious Violations', () => {
     test('properties sidebar works with keyboard only', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       const issueLink = page.locator('a[href*="/documents/"]').first()
       await expect(issueLink).toBeVisible({ timeout: 5000 })
       await issueLink.click()
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Tab into the properties panel
       // Keep tabbing until we reach a form control in the properties panel
@@ -922,7 +918,7 @@ test.describe('Phase 2: Serious Violations', () => {
     test('navigating to nested document auto-expands tree ancestors', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Sidebar tree MUST exist
       const sidebar = page.locator('#sidebar-content, aside[aria-label="Document list"]')
@@ -941,7 +937,6 @@ test.describe('Phase 2: Serious Violations', () => {
         const expander = expandableItem.locator('button, [role="button"]').first()
         await expect(expander).toBeVisible()
         await expander.click()
-        await page.waitForTimeout(300)
       }
 
       // Find a child document link (must be in nested ul, not the parent's own link)
@@ -953,7 +948,7 @@ test.describe('Phase 2: Serious Violations', () => {
 
       // Navigate directly to this URL (simulating deep link / refresh)
       await page.goto(childHref!)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // CRITICAL: Tree MUST auto-expand to show this document
       // Use the sidebar tree specifically to avoid conflicts with main content tree
@@ -969,7 +964,7 @@ test.describe('Phase 2: Serious Violations', () => {
     test('current document is visually highlighted in tree', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Click on any document from the sidebar tree specifically
       // Use the complementary landmark to find the sidebar
@@ -983,7 +978,7 @@ test.describe('Phase 2: Serious Violations', () => {
 
       // Wait for URL to change to the document page
       await page.waitForURL(`**${href}`)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Wait for the treeitem to become selected (React needs time to re-render)
       // The treeitem should have aria-selected="true" when active
@@ -998,7 +993,7 @@ test.describe('Phase 2: Serious Violations', () => {
     test('issue lists use semantic list markup', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Issues page uses list view (table) by default or kanban view (ul/li)
       // Both are valid semantic structures for their respective use cases
@@ -1048,7 +1043,7 @@ test.describe('Phase 2: Serious Violations', () => {
     test('document tree updates are announced', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Document tree MUST have aria-live region for update announcements
       // Use the sidebar tree specifically (aria-label containing "documents")
@@ -1076,13 +1071,13 @@ test.describe('Phase 2: Serious Violations', () => {
     test('related form fields are grouped with fieldset', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Open a document with properties sidebar
       const docLink = page.locator('a[href*="/documents/"]').first()
       await expect(docLink).toBeVisible({ timeout: 5000 })
       await docLink.click()
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Properties sidebar MUST have proper grouping for related fields
       const propertiesSidebar = page.locator('[data-properties], aside:has(select)')
@@ -1101,11 +1096,10 @@ test.describe('Phase 2: Serious Violations', () => {
 
     test('dialogs have close instructions', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Open command palette (Cmd+K)
       await page.keyboard.press('Meta+k')
-      await page.waitForTimeout(300)
 
       const dialog = page.locator('[role="dialog"]')
       await expect(dialog).toBeVisible({ timeout: 5000 })
@@ -1132,7 +1126,7 @@ test.describe('Phase 3: Moderate Violations', () => {
     test('major sections have headings', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Page MUST have h1
       const h1 = page.locator('h1')
@@ -1183,7 +1177,7 @@ test.describe('Phase 3: Moderate Violations', () => {
 
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
       const docsTitle = await page.title()
       expect(docsTitle).toBeTruthy()
       expect(docsTitle.length).toBeGreaterThan(0)
@@ -1194,7 +1188,7 @@ test.describe('Phase 3: Moderate Violations', () => {
     test('content remains readable with increased text spacing', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Main content MUST exist (4-panel layout)
       const mainContent = page.locator('main, #main-content').first()
@@ -1211,9 +1205,6 @@ test.describe('Phase 3: Moderate Violations', () => {
           p { margin-bottom: 2em !important; }
         `,
       })
-
-      // Wait for styles to apply
-      await page.waitForTimeout(100)
 
       // Main content MUST still be visible after spacing changes
       await expect(mainContent).toBeVisible()
@@ -1234,7 +1225,7 @@ test.describe('Phase 3: Moderate Violations', () => {
   test.describe('3.5-3.11 Additional Moderate Fixes', () => {
     test('no nested interactive elements', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Check for buttons inside links or links inside buttons
       const nestedInteractive = page.locator('a button, button a, a a, button button')
@@ -1251,7 +1242,7 @@ test.describe('Phase 3: Moderate Violations', () => {
 
     test('no empty buttons or links', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       const emptyButtons = await page.evaluate(() => {
         const buttons = document.querySelectorAll('button, a[href]')
@@ -1269,7 +1260,7 @@ test.describe('Phase 3: Moderate Violations', () => {
 
     test('tooltips shown on hover also appear on focus', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Find an element with tooltip (aria-describedby, title, or data-tooltip)
       const tooltipTrigger = page.locator('[aria-describedby], [data-tooltip], [title]').first()
@@ -1279,14 +1270,14 @@ test.describe('Phase 3: Moderate Violations', () => {
       if (triggerCount > 0) {
         // First, hover to show tooltip
         await tooltipTrigger.hover()
-        await page.waitForTimeout(300)
 
         const tooltipOnHover = page.locator('[role="tooltip"], .tooltip')
-        const visibleOnHover = await tooltipOnHover.isVisible().catch(() => false)
+        // Wait briefly for tooltip to potentially appear on hover
+        const visibleOnHover = await expect(tooltipOnHover.first()).toBeVisible({ timeout: 1000 }).then(() => true).catch(() => false)
 
         // Now focus the element
         await tooltipTrigger.focus()
-        await page.waitForTimeout(300)
+        await expect(tooltipTrigger).toBeFocused({ timeout: 2000 })
 
         // If tooltip was visible on hover, it MUST also be visible on focus
         if (visibleOnHover) {
@@ -1308,7 +1299,7 @@ test.describe('Phase 3: Moderate Violations', () => {
     test('images do not have redundant alt text', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Check that images don't have alt text that just says "image" or "picture"
       const images = page.locator('img[alt]')
@@ -1334,7 +1325,7 @@ test.describe('Phase 3: Moderate Violations', () => {
     test('focus maintained during sidebar transitions', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Find sidebar collapse/expand controls
       const collapseButton = page.locator('[aria-controls*="sidebar"], [data-collapse-sidebar], button:has-text("collapse")')
@@ -1352,7 +1343,9 @@ test.describe('Phase 3: Moderate Violations', () => {
 
       // Trigger sidebar collapse
       await collapseButton.first().click()
-      await page.waitForTimeout(300)
+
+      // Wait for collapse transition to complete
+      await expect(collapseButton.first()).toBeVisible({ timeout: 2000 })
 
       // Focus should NOT be lost to body after collapse
       const focusedAfter = await page.evaluate(() => document.activeElement?.tagName)
@@ -1362,11 +1355,10 @@ test.describe('Phase 3: Moderate Violations', () => {
     test('content works in portrait and landscape orientations', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Test portrait-like viewport (narrow)
       await page.setViewportSize({ width: 375, height: 812 })
-      await page.waitForTimeout(200)
 
       // Content MUST still be visible and not clipped
       const mainContent = page.locator('main, [role="main"], #main-content, .main-content')
@@ -1376,7 +1368,6 @@ test.describe('Phase 3: Moderate Violations', () => {
 
       // Test landscape-like viewport (wide)
       await page.setViewportSize({ width: 1024, height: 768 })
-      await page.waitForTimeout(200)
 
       // Content MUST still be visible
       if (await mainContent.count() > 0) {
@@ -1398,7 +1389,7 @@ test.describe('Phase 4: Minor Violations', () => {
     test('code blocks have language indication', async ({ page }) => {
       await login(page)
       await page.goto('/docs')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       const codeBlocks = page.locator('pre code, .code-block')
       const count = await codeBlocks.count()
@@ -1418,7 +1409,7 @@ test.describe('Phase 4: Minor Violations', () => {
   test.describe('4.2-4.5 Additional Minor Fixes', () => {
     test('abbreviations have expansion', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Check for abbr elements with title
       const abbrs = page.locator('abbr')
@@ -1434,7 +1425,7 @@ test.describe('Phase 4: Minor Violations', () => {
     test('navigation order is consistent', async ({ page }) => {
       // Test that tab order matches visual order
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       const focusOrder: string[] = []
 
@@ -1457,7 +1448,7 @@ test.describe('Phase 4: Minor Violations', () => {
 
     test('no redundant title and aria-label pairs', async ({ page }) => {
       await login(page)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Elements with both title and aria-label should not have identical content
       const redundant = await page.evaluate(() => {
@@ -1477,13 +1468,13 @@ test.describe('Phase 4: Minor Violations', () => {
     test('form fields have contextual help where needed', async ({ page }) => {
       await login(page)
       await page.goto('/issues')
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Open an issue with properties sidebar
       const issueLink = page.locator('a[href*="/documents/"]').first()
       await expect(issueLink).toBeVisible({ timeout: 5000 })
       await issueLink.click()
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
       // Form inputs that might need contextual help
       const inputs = page.locator('input[type="number"], input[type="date"], input:not([type="hidden"])')
@@ -1517,7 +1508,7 @@ test.describe('Phase 4: Minor Violations', () => {
 test.describe('Automated axe-core Full Scan', () => {
   test('login page has no WCAG 2.2 AA violations', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
@@ -1533,7 +1524,7 @@ test.describe('Automated axe-core Full Scan', () => {
   test('documents page has no WCAG 2.2 AA violations', async ({ page }) => {
     await login(page)
     await page.goto('/docs')
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
@@ -1549,7 +1540,7 @@ test.describe('Automated axe-core Full Scan', () => {
   test('issues page has no WCAG 2.2 AA violations', async ({ page }) => {
     await login(page)
     await page.goto('/issues')
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
