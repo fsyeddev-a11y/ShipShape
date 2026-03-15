@@ -28,7 +28,6 @@ test.describe('Status Overview Heatmap', () => {
 
   test('displays legend with status colors', async ({ page }) => {
     await page.goto('/team/status')
-    await page.waitForLoadState('networkidle')
 
     // Should see status legend
     await expect(page.getByText('Status:')).toBeVisible({ timeout: 10000 })
@@ -43,7 +42,6 @@ test.describe('Status Overview Heatmap', () => {
 
   test('displays programs with people directly underneath', async ({ page }) => {
     await page.goto('/team/status')
-    await page.waitForLoadState('networkidle')
 
     // Wait for heatmap to load - new header is "Program / Person" (no project level)
     await expect(page.getByText('Program / Person')).toBeVisible({ timeout: 10000 })
@@ -56,7 +54,6 @@ test.describe('Status Overview Heatmap', () => {
 
   test('shows people directly under programs without expansion', async ({ page }) => {
     await page.goto('/team/status')
-    await page.waitForLoadState('networkidle')
 
     // Wait for heatmap to load
     await expect(page.getByText('Program / Person')).toBeVisible({ timeout: 10000 })
@@ -68,7 +65,6 @@ test.describe('Status Overview Heatmap', () => {
 
   test('displays split cells for plan/retro status', async ({ page }) => {
     await page.goto('/team/status')
-    await page.waitForLoadState('networkidle')
 
     // Wait for heatmap to load
     await expect(page.getByText('Program / Person')).toBeVisible({ timeout: 10000 })
@@ -87,7 +83,6 @@ test.describe('Status Overview Heatmap', () => {
 
   test('clicking plan cell navigates to weekly plan document', async ({ page }) => {
     await page.goto('/team/status')
-    await page.waitForLoadState('networkidle')
 
     // Wait for heatmap to load
     await expect(page.getByText('Program / Person')).toBeVisible({ timeout: 10000 })
@@ -108,7 +103,6 @@ test.describe('Status Overview Heatmap', () => {
 
   test('clicking retro cell navigates to weekly retro document', async ({ page }) => {
     await page.goto('/team/status')
-    await page.waitForLoadState('networkidle')
 
     // Wait for heatmap to load
     await expect(page.getByText('Program / Person')).toBeVisible({ timeout: 10000 })
@@ -129,7 +123,6 @@ test.describe('Status Overview Heatmap', () => {
 
   test('Show archived checkbox is present', async ({ page }) => {
     await page.goto('/team/status')
-    await page.waitForLoadState('networkidle')
 
     // Should see Show archived checkbox
     await expect(page.getByRole('checkbox', { name: 'Show archived' })).toBeVisible({ timeout: 10000 })
@@ -137,7 +130,6 @@ test.describe('Status Overview Heatmap', () => {
 
   test('displays week columns with dates', async ({ page }) => {
     await page.goto('/team/status')
-    await page.waitForLoadState('networkidle')
 
     // Wait for heatmap to load
     await expect(page.getByText('Program / Person')).toBeVisible({ timeout: 10000 })
