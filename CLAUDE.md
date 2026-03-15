@@ -4,6 +4,48 @@
 
 - **Never** add "Co-Authored-By", "by Claude", or any AI attribution to commit messages. Commits should look like they were written by the developer, with no AI co-author tags.
 - **Always use `--no-ff` when merging category branches to master.** This creates a merge commit (e.g., `Merge branch 'cat2-bundle-size'`) so the history clearly shows when each category was merged. Never fast-forward merge category branches.
+- **Structured commit messages.** Every commit that implements a fix or improvement must use this format:
+
+```
+fix(<catN>): <short summary of what changed>
+
+Category: <N> — <Category Name>
+Spec: <spec number and name>
+
+Problem: <What was wrong with the original code — the root cause, not just symptoms.
+         Be specific: what was inefficient, broken, or missing.>
+
+Fix: <What the commit changes and why this approach works.
+     Reference specific files, functions, or patterns modified.>
+
+Tradeoffs: <What you gave up, added complexity, or risks introduced.
+           "None" is acceptable if truly applicable, but think hard first.>
+
+Measured improvement: <Before/after numbers or metrics if applicable.>
+```
+
+  Example:
+```
+fix(cat3): remove content field from issues list query
+
+Category: 3 — API Response Time
+Spec: 3.1 — Issues Remove Content
+
+Problem: GET /api/issues returned full document content (avg 2.3MB per response)
+for every issue in the list view, even though the list only displays titles and
+metadata. This added ~200ms of serialization overhead per request.
+
+Fix: Excluded d.content from the SELECT in the issues list query. The document
+detail/edit endpoint (GET /api/documents/:id) still fetches content. Modified
+api/src/routes/issues.ts lines 45-52.
+
+Tradeoffs: Opening an issue now requires a separate fetch for content, adding
+one extra query per issue view. Acceptable since users view lists far more
+often than individual issues.
+
+Measured improvement: Issues list payload dropped from 2.3MB to 780KB (66% reduction).
+P50 response time improved from 340ms to 120ms.
+```
 
 ## Project Overview
 
