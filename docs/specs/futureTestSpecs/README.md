@@ -20,3 +20,9 @@ These specs address 13 web unit test failures (3 files) and 7 flaky E2E tests di
 | [fix-my-week-stale-data-flakiness.md](fix-my-week-stale-data-flakiness.md) | `e2e/my-week-stale-data.spec.ts` | 2 | Yjs-to-DB async persistence race condition (documented known flaky) |
 | [fix-project-weeks-e2e-flakiness.md](fix-project-weeks-e2e-flakiness.md) | `e2e/project-weeks.spec.ts` | 5 | API data creation → immediate UI navigation cache timing |
 | [fix-weekly-accountability-e2e-flakiness.md](fix-weekly-accountability-e2e-flakiness.md) | `e2e/weekly-accountability.spec.ts` | 17 | Multi-step API setup chain cascade; document queryability timing |
+
+## Feature Bugs
+
+| Spec | Files | Root Cause |
+|------|-------|------------|
+| [Spec 6.6](../cat6-title-realtime-sync.md) | `useAutoSave.ts`, `documents.ts`, `Editor.tsx` | Title updates use REST instead of WebSocket — no real-time sync to other users. Also, `useAutoSave` throttle double-fires (immediate + trailing) per window. |

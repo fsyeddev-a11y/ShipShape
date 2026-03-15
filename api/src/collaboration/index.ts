@@ -595,6 +595,26 @@ export async function handleVisibilityChange(
  * @param eventType - The event type (e.g., 'accountability:updated')
  * @param data - Optional event data payload
  */
+/**
+ * Broadcast a custom event to all WebSocket connections in a workspace, excluding a specific user.
+ * Used for real-time sync like title updates where all other users need to be notified.
+ */
+export function broadcastToWorkspace(workspaceId: string, excludeUserId: string, eventType: string, data?: Record<string, unknown>): void {
+  const payload = JSON.stringify({ type: eventType, data: data || {} });
+
+  let sentCount = 0;
+  eventConns.forEach((conn, ws) => {
+    if (conn.workspaceId === workspaceId && conn.userId !== excludeUserId && ws.readyState === WebSocket.OPEN) {
+      ws.send(payload);
+      sentCount++;
+    }
+  });
+
+  if (sentCount > 0) {
+    console.log(`[Events] Broadcast '${eventType}' to workspace ${workspaceId} excluding ${excludeUserId} (${sentCount} connections)`);
+  }
+}
+
 export function broadcastToUser(userId: string, eventType: string, data?: Record<string, unknown>): void {
   const payload = JSON.stringify({ type: eventType, data: data || {} });
 

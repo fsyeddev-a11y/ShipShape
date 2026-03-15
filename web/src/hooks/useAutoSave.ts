@@ -66,13 +66,13 @@ export function useAutoSave({ onSave, throttleMs = 500, maxRetries = 3 }: UseAut
     if (timeSinceLastSave >= throttleMs) {
       saveSequenceRef.current++;
       save(value, saveSequenceRef.current);
+    } else {
+      // Only schedule trailing save when immediate didn't fire
+      timeoutRef.current = setTimeout(() => {
+        saveSequenceRef.current++;
+        save(value, saveSequenceRef.current);
+      }, throttleMs);
     }
-
-    // Always schedule a trailing save
-    timeoutRef.current = setTimeout(() => {
-      saveSequenceRef.current++;
-      save(value, saveSequenceRef.current);
-    }, throttleMs);
   }, [save, throttleMs]);
 
   return throttledSave;
