@@ -101,6 +101,21 @@ All specs derived from the [audit report](../audit/audit-report.md) and human au
 | E.5 | [Project Weeks E2E](phase3/fix-project-weeks-e2e-flakiness.md) | `project-weeks.spec.ts` | 5 | API data creation → UI navigation cache timing | Todo |
 | E.6 | [Weekly Accountability E2E](phase3/fix-weekly-accountability-e2e-flakiness.md) | `weekly-accountability.spec.ts` | 17 | Multi-step API setup chain cascade | Todo |
 
+## Flaky E2E Fixes — Individual (14 flaky tests, 10 specs)
+
+| # | Spec | File(s) | Root Cause | Status |
+|---|------|---------|------------|--------|
+| F2.1 | [createNewDocument networkidle](phase3/fix-e2e-create-helper-networkidle.md) | Shared helper (8+ files) | `networkidle` never resolves with WebSocket connections | Todo |
+| F2.2 | [Status Heatmap networkidle](phase3/fix-e2e-status-heatmap-networkidle.md) | `status-overview-heatmap.spec.ts` | `networkidle` on heatmap page with WebSockets | Todo |
+| F2.3 | [A11y Non-Retrying Assertions](phase3/fix-e2e-a11y-non-retrying-assertions.md) | `accessibility-remediation.spec.ts` | `getAttribute()` reads null before React attaches ARIA attrs | Todo |
+| F2.4 | [Drag Handle Retry](phase3/fix-e2e-drag-handle-retry.md) | `drag-handle.spec.ts` | No retry on synthetic drag with stale coordinates | Todo |
+| F2.5 | [Edge Cases Mention Timing](phase3/fix-e2e-edge-cases-mention-timing.md) | `edge-cases.spec.ts` | Snapshot `isVisible()` + `waitForTimeout(300)` in mention loop | Todo |
+| F2.6 | [Emoji Persistence Polling](phase3/fix-e2e-emoji-persistence-polling.md) | `emoji.spec.ts` | `waitForTimeout(2000)` for Yjs save with no verification | Todo |
+| F2.7 | [Inline Comments Timing](phase3/fix-e2e-inline-comments-timing.md) | `inline-comments.spec.ts` | `waitForTimeout(400/500)` for bubble menu and content sync | Todo |
+| F2.8 | [Mentions Retrying Assertions](phase3/fix-e2e-mentions-retrying-assertions.md) | `mentions.spec.ts` | Snapshot `.count()` + `waitForTimeout(500)` for filter results | Todo |
+| F2.9 | [Syntax Highlighting Timing](phase3/fix-e2e-syntax-highlighting-timing.md) | `syntax-highlighting.spec.ts` | `waitForTimeout(300/500)` between code block creation | Todo |
+| F2.10 | [Tables Silent Pass + Persistence](phase3/fix-e2e-tables-silent-pass-persistence.md) | `tables.spec.ts` | Silent-pass `if` guard + `waitForTimeout(2000)` for Yjs save | Todo |
+
 ---
 
 # Future Phase — Performance Optimizations (Planned)
