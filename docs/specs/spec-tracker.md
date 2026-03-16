@@ -144,6 +144,17 @@ Post-fix CI run results (GitHub Actions, 4 workers, 23.8m): [Full results](phase
 | F3.8 | [Session Timeout Fake Clock](phase3/fix-session-timeout-fake-clock.md) | `session-timeout.spec.ts` | Mock response timestamps misaligned with fake clock | Skipped — requires fake timers | Todo |
 | F3.9 | [Project Weeks Strict Locator](phase3/fix-project-weeks-strict-locator.md) | `project-weeks.spec.ts` | Locator resolves to 2 elements (sidebar + properties) | Test bug — strict mode ambiguity | Todo |
 
+## Phase 3.3 — Hard Failure Fixes (4 specs)
+
+Fixes for the remaining hard failures after investigation revealed simpler root causes than initially estimated.
+
+| # | Spec | File(s) | Type | Complexity | Status |
+|---|------|---------|------|-----------|--------|
+| F3.10 | [Bulk Selection Focus Ring](phase3/fix-bulk-selection-focus-ring-collision.md) | `SelectableList.tsx` | CSS class collision (test regex matches static Tailwind utility) | Small — 1 line | Todo |
+| F3.11 | [A11y Hover/Focus Controls](phase3/fix-a11y-hover-focus-controls.md) | `App.tsx`, `DocumentTreeItem.tsx` | App code — add tabIndex + focus-within visibility | Low-Medium — ~20 lines | Todo |
+| F3.12 | [Code Block Exit Test](phase3/fix-code-block-exit-test.md) | `syntax-highlighting.spec.ts` | Test bug — Meta+End doesn't exit code blocks, use ArrowDown | Small — ~3 lines | Todo |
+| F3.13 | [Table Context Menu](phase3/fix-table-context-menu-feature.md) | `Editor.tsx` + new `TableContextMenu.tsx` | App feature — build custom right-click menu using existing ContextMenu | Low-Medium — ~80 lines | Todo |
+
 ---
 
 # Future Phase — Optimizations & Test Gaps (Planned)
@@ -157,9 +168,7 @@ Additional optimizations, test coverage gaps, and issues requiring app code chan
 | F.3 | [API Token Hash Index](futurePhase/future-token-hash-index.md) | Add index on api_tokens.token_hash | Cat 3/4 | Planned |
 | F.4 | [Throttle last_used_at UPDATE](futurePhase/future-throttle-last-used.md) | Throttle to once per minute (auth overhead at scale) | Cat 3/4 | Planned |
 | F.5 | [Multi-User Collaboration Tests](futurePhase/future-multi-user-collab-tests.md) | E2E tests for real-time sync: body, title, concurrent edits, presence, reconnect | Cat 5 | Planned |
-| F.6 | [Remaining Test Failures](futurePhase/future-remaining-test-failures.md) | 6 hard failures (bulk-selection focus, a11y hover) + 13 flaky CI timing issues needing app code | Cat 5 | Planned |
-| F.7 | [Table Context Menu](phase3/fix-table-context-menu.md) | App has no custom right-click context menu for tables — no add row/delete table UI exists. Verified manually. | Cat 6 | Planned |
-| F.8 | [Code Block Input Rule](phase3/fix-code-block-exit-strategy.md) | TipTap backtick input rule doesn't trigger for a second code block in the same document. Verified in headless + test runner. | Cat 6 | Planned |
+| F.6 | [Remaining Flaky Tests](futurePhase/future-remaining-test-failures.md) | 13 flaky CI timing issues needing app code or investigation | Cat 5 | Planned |
 
 ---
 
