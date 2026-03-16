@@ -353,13 +353,13 @@ test.describe('Edge Cases', () => {
     await editor.click()
 
     // Select all
-    await page.keyboard.press('Meta+a')
+    await page.keyboard.press('ControlOrMeta+a')
 
     // Apply bold
-    await page.keyboard.press('Meta+b')
+    await page.keyboard.press('ControlOrMeta+b')
 
     // Apply italic
-    await page.keyboard.press('Meta+i')
+    await page.keyboard.press('ControlOrMeta+i')
 
     // Wait for formatting to apply
     await page.waitForTimeout(500)
