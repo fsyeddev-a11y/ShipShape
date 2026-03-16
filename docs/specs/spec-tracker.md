@@ -130,11 +130,25 @@ Post-fix CI run results (GitHub Actions, 4 workers, 23.8m): [Full results](phase
 
 **9 of 14 previously flaky tests now pass cleanly.** 3 new failures are from intentionally stricter assertions exposing real bugs. Remaining failures/flaky are timing-related CI issues.
 
+## Phase 3.2 Fixes — New Failures & Flaky (9 specs)
+
+| # | Spec | File(s) | Root Cause | Status |
+|---|------|---------|------------|--------|
+| F3.1 | [selectText Keyboard Shortcut](phase3/fix-selecttext-keyboard-shortcut.md) | `inline-comments.spec.ts` | selectText helper assumes bubble menu; keyboard shortcut test doesn't use it | Todo |
+| F3.2 | [Code Block Exit Strategy](phase3/fix-code-block-exit-strategy.md) | `syntax-highlighting.spec.ts` | Meta+End doesn't exit code block on CI Linux | Todo |
+| F3.3 | [Table Context Menu](phase3/fix-table-context-menu.md) | `tables.spec.ts` | Context menu text doesn't match "Add row"/"Delete table" selectors | Todo |
+| F3.4 | [TOC Heading Rename](phase3/fix-toc-heading-rename.md) | `toc.spec.ts` | Fragile keyboard selection lands in wrong node | Todo |
+| F3.5 | [Backlinks Sync Timing](phase3/fix-backlinks-sync-timing.md) | `backlinks.spec.ts` | Link-sync POST swallowed by .catch(), stale data | Todo |
+| F3.6 | [Meta+A Selects Title](phase3/fix-meta-a-selects-title.md) | `edge-cases.spec.ts`, `inline-code.spec.ts` | Meta+A selects title textarea + editor, formatting fails | Todo |
+| F3.7 | [Race Conditions Route Timing](phase3/fix-race-conditions-route-timing.md) | `race-conditions.spec.ts` | Network delay route installed before doc creation | Todo |
+| F3.8 | [Session Timeout Fake Clock](phase3/fix-session-timeout-fake-clock.md) | `session-timeout.spec.ts` | Mock response timestamps misaligned with fake clock | Todo |
+| F3.9 | [Project Weeks Strict Locator](phase3/fix-project-weeks-strict-locator.md) | `project-weeks.spec.ts` | Locator resolves to 2 elements (sidebar + properties) | Todo |
+
 ---
 
 # Future Phase — Optimizations & Test Gaps (Planned)
 
-Additional optimizations and test coverage gaps identified during Phase 2/3 work.
+Additional optimizations, test coverage gaps, and issues requiring app code changes identified during Phase 2/3 work.
 
 | # | Spec | Summary | Category | Status |
 |---|------|---------|----------|--------|
@@ -143,6 +157,7 @@ Additional optimizations and test coverage gaps identified during Phase 2/3 work
 | F.3 | [API Token Hash Index](futurePhase/future-token-hash-index.md) | Add index on api_tokens.token_hash | Cat 3/4 | Planned |
 | F.4 | [Throttle last_used_at UPDATE](futurePhase/future-throttle-last-used.md) | Throttle to once per minute (auth overhead at scale) | Cat 3/4 | Planned |
 | F.5 | [Multi-User Collaboration Tests](futurePhase/future-multi-user-collab-tests.md) | E2E tests for real-time sync: body, title, concurrent edits, presence, reconnect | Cat 5 | Planned |
+| F.6 | [Remaining Test Failures](futurePhase/future-remaining-test-failures.md) | 6 hard failures (bulk-selection focus, a11y hover) + 13 flaky CI timing issues needing app code | Cat 5 | Planned |
 
 ---
 
