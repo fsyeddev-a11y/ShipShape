@@ -24,14 +24,15 @@ test.describe('Inline Comments', () => {
     const editor = page.locator('.ProseMirror')
     await editor.click()
     await page.keyboard.type(text, { delay: 5 })
-    // Wait for content to sync
-    await page.waitForTimeout(500)
+    // Wait for content to appear in editor
+    await expect(editor).toContainText(text, { timeout: 5000 })
   }
 
   /**
    * Helper: select a specific substring within the editor paragraph
    */
-  async function selectText(page: any, target: string) {
+  async function selectText(page: any, target: string, options?: { waitForBubbleMenu?: boolean }) {
+    const { waitForBubbleMenu = true } = options || {}
     await page.evaluate((t: string) => {
       const p = document.querySelector('[data-testid="tiptap-editor"] .ProseMirror p')
       if (!p) return
@@ -54,7 +55,10 @@ test.describe('Inline Comments', () => {
         offset += len
       }
     }, target)
-    await page.waitForTimeout(400)
+    // Wait for bubble menu to appear after selection (unless caller opts out)
+    if (waitForBubbleMenu) {
+      await expect(page.getByRole('button', { name: 'Comment' })).toBeVisible({ timeout: 3000 })
+    }
   }
 
   test('bubble menu shows Comment button on text selection', async ({ page }) => {
@@ -97,10 +101,10 @@ test.describe('Inline Comments', () => {
   test('can create a comment via Cmd+Shift+M keyboard shortcut', async ({ page }) => {
     await createDocumentWithText(page, 'Testing keyboard shortcut for adding comments quickly.')
 
-    await selectText(page, 'keyboard shortcut')
+    await selectText(page, 'keyboard shortcut', { waitForBubbleMenu: false })
 
     // Press Cmd+Shift+M
-    await page.keyboard.press('Meta+Shift+m')
+    await page.keyboard.press('ControlOrMeta+Shift+m')
 
     // Comment input should appear
     const commentInput = page.getByRole('textbox', { name: 'Write a comment...' })

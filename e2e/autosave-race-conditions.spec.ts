@@ -23,7 +23,6 @@ async function login(page: Page, email: string = 'dev@ship.local', password: str
 // Helper to create a new document and wait for editor
 async function createNewDocument(page: Page) {
   await page.goto('/docs');
-  await page.waitForLoadState('networkidle');
 
   const currentUrl = page.url();
   // Button uses aria-label, not title attribute

@@ -183,13 +183,16 @@ test.describe('Weekly Plan API', () => {
     });
     const created = await createResponse.json();
 
-    // Get by ID
-    const getResponse = await page.request.get(`${apiServer.url}/api/weekly-plans/${created.id}`);
-    expect(getResponse.ok()).toBe(true);
-    const plan = await getResponse.json();
+    // Retry GET until document is queryable (handles transaction commit timing)
+    let plan: { id: string; properties: { week_number: number } };
+    await expect(async () => {
+      const getResponse = await page.request.get(`${apiServer.url}/api/weekly-plans/${created.id}`);
+      expect(getResponse.ok()).toBe(true);
+      plan = await getResponse.json();
+    }).toPass({ timeout: 5000 });
 
-    expect(plan.id).toBe(created.id);
-    expect(plan.properties.week_number).toBe(6);
+    expect(plan!.id).toBe(created.id);
+    expect(plan!.properties.week_number).toBe(6);
   });
 
   test('POST /weekly-plans returns 404 for non-existent person', async ({ page, apiServer }) => {
@@ -338,13 +341,16 @@ test.describe('Weekly Retro API', () => {
     });
     const created = await createResponse.json();
 
-    // Get by ID
-    const getResponse = await page.request.get(`${apiServer.url}/api/weekly-retros/${created.id}`);
-    expect(getResponse.ok()).toBe(true);
-    const retro = await getResponse.json();
+    // Retry GET until document is queryable (handles transaction commit timing)
+    let retro: { id: string; properties: { week_number: number } };
+    await expect(async () => {
+      const getResponse = await page.request.get(`${apiServer.url}/api/weekly-retros/${created.id}`);
+      expect(getResponse.ok()).toBe(true);
+      retro = await getResponse.json();
+    }).toPass({ timeout: 5000 });
 
-    expect(retro.id).toBe(created.id);
-    expect(retro.properties.week_number).toBe(6);
+    expect(retro!.id).toBe(created.id);
+    expect(retro!.properties.week_number).toBe(6);
   });
 });
 
@@ -385,15 +391,17 @@ test.describe('Project Allocation Grid API', () => {
     page,
     apiServer,
   }) => {
+    test.setTimeout(30000);
+    const uniquePrefix = `test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const { csrfToken, userId } = await loginAndGetContext(page, apiServer.url);
     const personId = await getPersonIdForUser(page, apiServer.url, userId);
-    const projectId = await createTestProject(page, apiServer.url, csrfToken, 'Test Project Allocation');
+    const projectId = await createTestProject(page, apiServer.url, csrfToken, `${uniquePrefix}-Allocation`);
 
     // Create a program for the sprint
     const programResponse = await page.request.post(`${apiServer.url}/api/documents`, {
       headers: { 'x-csrf-token': csrfToken },
       data: {
-        title: 'Test Program for Allocation',
+        title: `${uniquePrefix}-Program`,
         document_type: 'program',
       },
     });
@@ -450,24 +458,23 @@ test.describe('Project Allocation Grid API', () => {
     });
     const plan = await planResponse.json();
 
-    // Get allocation grid
-    const gridResponse = await page.request.get(
-      `${apiServer.url}/api/weekly-plans/project-allocation-grid/${projectId}`
-    );
+    // Retry allocation grid API call until planId is populated (handles transaction commit timing)
+    const gridUrl = `${apiServer.url}/api/weekly-plans/project-allocation-grid/${projectId}`;
+    await expect(async () => {
+      const gridResponse = await page.request.get(gridUrl);
+      expect(gridResponse.ok(), `Expected 200 OK but got ${gridResponse.status()}`).toBe(true);
+      const grid = await gridResponse.json();
 
-    expect(gridResponse.ok(), `Expected 200 OK but got ${gridResponse.status()}`).toBe(true);
-    const grid = await gridResponse.json();
+      // Find person in grid
+      const personInGrid = grid.people.find((p: { id: string }) => p.id === personId);
+      expect(personInGrid, 'Person should appear in allocation grid').toBeTruthy();
 
-    // Find person in grid
-    const personInGrid = grid.people.find((p: { id: string }) => p.id === personId);
-    expect(personInGrid, 'Person should appear in allocation grid').toBeTruthy();
-
-    // Person should have week 1 data
-    const week1Data = personInGrid.weeks[1];
-    if (week1Data) {
+      // Person should have week 1 data with planId populated
+      const week1Data = personInGrid.weeks[1];
+      expect(week1Data, 'Week 1 data should exist').toBeTruthy();
       expect(week1Data.isAllocated).toBe(true);
       expect(week1Data.planId).toBe(plan.id);
-    }
+    }).toPass({ timeout: 10000 });
   });
 
   test('Allocation grid returns 404 for non-existent project', async ({ page, apiServer }) => {
@@ -488,9 +495,11 @@ test.describe('Content Version History API', () => {
     page,
     apiServer,
   }) => {
+    test.setTimeout(30000);
+    const uniquePrefix = `test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const { csrfToken, userId } = await loginAndGetContext(page, apiServer.url);
     const personId = await getPersonIdForUser(page, apiServer.url, userId);
-    const projectId = await createTestProject(page, apiServer.url, csrfToken, 'Test Project History Empty');
+    const projectId = await createTestProject(page, apiServer.url, csrfToken, `${uniquePrefix}-History Empty`);
 
     // Create weekly plan
     const createResponse = await page.request.post(`${apiServer.url}/api/weekly-plans`, {
@@ -502,6 +511,14 @@ test.describe('Content Version History API', () => {
       },
     });
     const plan = await createResponse.json();
+
+    // Retry GET until document is queryable (handles transaction commit timing)
+    await expect(async () => {
+      const historyResponse = await page.request.get(
+        `${apiServer.url}/api/weekly-plans/${plan.id}/history`
+      );
+      expect(historyResponse.ok()).toBe(true);
+    }).toPass({ timeout: 5000 });
 
     // Get history - should be empty for new document
     const historyResponse = await page.request.get(
@@ -518,9 +535,11 @@ test.describe('Content Version History API', () => {
     page,
     apiServer,
   }) => {
+    test.setTimeout(30000);
+    const uniquePrefix = `test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const { csrfToken, userId } = await loginAndGetContext(page, apiServer.url);
     const personId = await getPersonIdForUser(page, apiServer.url, userId);
-    const projectId = await createTestProject(page, apiServer.url, csrfToken, 'Test Project Retro History');
+    const projectId = await createTestProject(page, apiServer.url, csrfToken, `${uniquePrefix}-Retro History`);
 
     // Create weekly retro
     const createResponse = await page.request.post(`${apiServer.url}/api/weekly-retros`, {
@@ -532,6 +551,14 @@ test.describe('Content Version History API', () => {
       },
     });
     const retro = await createResponse.json();
+
+    // Retry GET until document is queryable (handles transaction commit timing)
+    await expect(async () => {
+      const historyResponse = await page.request.get(
+        `${apiServer.url}/api/weekly-retros/${retro.id}/history`
+      );
+      expect(historyResponse.ok()).toBe(true);
+    }).toPass({ timeout: 5000 });
 
     // Get history - should be empty for new document
     const historyResponse = await page.request.get(

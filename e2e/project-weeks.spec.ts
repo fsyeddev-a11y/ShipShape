@@ -119,16 +119,18 @@ test.describe('Project Weeks Tab', () => {
 
     // Navigate to project's Weeks tab
     await page.goto(`/documents/${projectId}/weeks`);
+    // Reload to bypass React Query cache after API data creation
+    await page.reload({ waitUntil: 'domcontentloaded' });
 
     // Wait for the grid to load
-    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 15000 });
 
     // Verify the person appears in the grid (Dev User from seed data)
     await expect(page.locator('text=Dev User')).toBeVisible();
 
     // Verify we see colored status cells (not dash for unallocated)
     const statusCells = page.locator('button[title*="Weekly Plan"]');
-    await expect(statusCells.first()).toBeVisible();
+    await expect(statusCells.first()).toBeVisible({ timeout: 15000 });
   });
 
   test('clicking cell opens weekly plan document with context', async ({ page, apiServer }) => {
@@ -148,13 +150,15 @@ test.describe('Project Weeks Tab', () => {
 
     // Navigate to project's Weeks tab
     await page.goto(`/documents/${projectId}/weeks`);
+    // Reload to bypass React Query cache after API data creation
+    await page.reload({ waitUntil: 'domcontentloaded' });
 
     // Wait for grid to load
-    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 15000 });
 
     // Click on the plan status cell (left half of the colored cell)
     const planCell = page.locator('button[title*="Weekly Plan"]').first();
-    await expect(planCell).toBeVisible();
+    await expect(planCell).toBeVisible({ timeout: 15000 });
     await planCell.click();
 
     // Wait for navigation to weekly plan document
@@ -172,7 +176,7 @@ test.describe('Project Weeks Tab', () => {
     // Verify Properties sidebar shows project name as a link
     // Label is "Project" (without colon)
     await expect(page.getByText('Project', { exact: true })).toBeVisible();
-    await expect(page.locator('a:has-text("Click Test Project")')).toBeVisible();
+    await expect(page.getByLabel('Document properties').locator('a:has-text("Click Test Project")')).toBeVisible();
   });
 
   test('project link in Properties sidebar navigates back to project', async ({ page, apiServer }) => {
@@ -192,16 +196,20 @@ test.describe('Project Weeks Tab', () => {
 
     // Navigate to project's Weeks tab and click to open weekly plan
     await page.goto(`/documents/${projectId}/weeks`);
-    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 10000 });
+    // Reload to bypass React Query cache after API data creation
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 15000 });
 
     const planCell = page.locator('button[title*="Weekly Plan"]').first();
+    await expect(planCell).toBeVisible({ timeout: 15000 });
     await planCell.click();
 
     // Wait for weekly plan document
     await expect(page.locator('text=Weekly Plan')).toBeVisible({ timeout: 10000 });
 
-    // Click the project link to navigate back
-    const projectLink = page.locator('a:has-text("Navigation Test Project")');
+    // Click the project link in the Properties sidebar to navigate back
+    const propertiesSidebar = page.getByLabel('Document properties');
+    const projectLink = propertiesSidebar.locator('a:has-text("Navigation Test Project")');
     await expect(projectLink).toBeVisible();
     await projectLink.click();
 

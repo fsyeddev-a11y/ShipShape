@@ -18,7 +18,6 @@ import * as os from 'os'
 // Helper to create a new document using the available buttons
 async function createNewDocument(page: Page) {
   await page.goto('/docs')
-  await page.waitForLoadState('networkidle')
 
   const currentUrl = page.url()
   // Use the sidebar "New document" button (with aria-label, lowercase 'd')

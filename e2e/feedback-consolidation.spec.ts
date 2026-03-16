@@ -97,6 +97,7 @@ test.describe('Public Feedback Form', () => {
     // Navigate away from protected page before clearing cookies to avoid auth redirect race
     await page.goto('about:blank');
     await page.context().clearCookies();
+    await page.waitForTimeout(100); // minimal delay for cookie clearing to take effect
 
     // Navigate to public feedback form
     await page.goto(`/feedback/${programId}`);
@@ -113,7 +114,9 @@ test.describe('Public Feedback Form', () => {
     // Navigate away from protected page before clearing cookies to avoid auth redirect race
     await page.goto('about:blank');
     await page.context().clearCookies();
+    await page.waitForTimeout(100); // minimal delay for cookie clearing to take effect
     await page.goto(`/feedback/${programId}`);
+    await expect(page.locator('input[name="title"], input[placeholder*="title" i]').first()).toBeVisible({ timeout: 10000 });
 
     const uniqueTitle = `Feedback test ${Date.now()}`;
     await page.locator('input[name="title"], input[placeholder*="title" i]').first().fill(uniqueTitle);
@@ -148,8 +151,8 @@ test.describe('Public Feedback Form', () => {
     // Apply triage filter to find it
     await page.getByRole('tab', { name: /needs triage/i }).click();
 
-    // Wait for filtered results
-    await page.waitForTimeout(500);
+    // Wait for filtered results to render
+    await expect(page.locator('tbody tr[role="row"]').first()).toBeVisible({ timeout: 5000 });
 
     const newIssue = page.locator('tr[role="row"]', { hasText: uniqueTitle });
     await expect(newIssue).toBeVisible({ timeout: 10000 });
@@ -163,7 +166,9 @@ test.describe('Public Feedback Form', () => {
     // Navigate away from protected page before clearing cookies to avoid auth redirect race
     await page.goto('about:blank');
     await page.context().clearCookies();
+    await page.waitForTimeout(100); // minimal delay for cookie clearing to take effect
     await page.goto(`/feedback/${programId}`);
+    await expect(page.locator('input[name="title"], input[placeholder*="title" i]').first()).toBeVisible({ timeout: 10000 });
 
     await page.locator('input[name="title"], input[placeholder*="title" i]').first().fill('Confirmation test');
     await page.locator('input[name="submitter_email"], input[type="email"]').first().fill('confirm@test.com');
@@ -180,7 +185,9 @@ test.describe('Public Feedback Form', () => {
     // Navigate away from protected page before clearing cookies to avoid auth redirect race
     await page.goto('about:blank');
     await page.context().clearCookies();
+    await page.waitForTimeout(100); // minimal delay for cookie clearing to take effect
     await page.goto(`/feedback/${programId}`);
+    await expect(page.locator('input[name="title"], input[placeholder*="title" i]').first()).toBeVisible({ timeout: 10000 });
 
     await page.locator('input[name="title"], input[placeholder*="title" i]').first().fill('No tracking test');
     await page.locator('input[name="submitter_email"], input[type="email"]').first().fill('notrack@test.com');
@@ -271,7 +278,7 @@ test.describe('Data Migration', () => {
     await page.getByRole('tab', { name: /cancelled/i }).click();
 
     // Wait for filter to apply and table to re-render
-    await page.waitForTimeout(500);
+    await expect(page.locator('tbody tr[role="row"]').first()).toBeVisible({ timeout: 5000 });
 
     // 'Rejected spam submission' should be here
     const rejectedExternal = page.locator('tr[role="row"]', { hasText: 'Rejected spam submission' });
@@ -299,7 +306,7 @@ test.describe('Data Migration', () => {
 
     // Wait for issue table data to fully load
     await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 15000 });
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('table thead th').first()).toBeVisible({ timeout: 10000 });
 
     // Internal issues should show "Internal"
     const internalIssue = page.locator('tr[role="row"]', { hasText: 'Initial project setup' });

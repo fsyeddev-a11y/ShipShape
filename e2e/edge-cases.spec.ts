@@ -15,7 +15,6 @@ async function login(page: Page) {
 // Helper to create a new document
 async function createNewDocument(page: Page) {
   await page.goto('/docs')
-  await page.waitForLoadState('networkidle')
 
   const currentUrl = page.url()
 
@@ -231,15 +230,13 @@ test.describe('Edge Cases', () => {
       // Wait for mention popup
       await expect(page.locator('[role="listbox"]')).toBeVisible({ timeout: 5000 })
 
-      // Select first option if available
+      // Select first option
       const firstOption = page.locator('[role="option"]').first()
-      if (await firstOption.isVisible()) {
-        await firstOption.click()
-        await page.waitForTimeout(300)
-      } else {
-        // No results, press Escape and continue
-        await page.keyboard.press('Escape')
-      }
+      await expect(firstOption).toBeVisible({ timeout: 3000 })
+      await firstOption.click()
+
+      // Wait for mention node to render before next iteration
+      await expect(page.locator('.mention, [data-type="mention"]').nth(i)).toBeVisible({ timeout: 3000 })
 
       // Add some spacing
       await page.keyboard.type(' ')
@@ -352,14 +349,17 @@ test.describe('Edge Cases', () => {
     // Type text
     await page.keyboard.type('Bold and italic text')
 
+    // Click into editor to ensure focus is scoped to ProseMirror (not the title)
+    await editor.click()
+
     // Select all
-    await page.keyboard.press('Meta+a')
+    await page.keyboard.press('ControlOrMeta+a')
 
     // Apply bold
-    await page.keyboard.press('Meta+b')
+    await page.keyboard.press('ControlOrMeta+b')
 
     // Apply italic
-    await page.keyboard.press('Meta+i')
+    await page.keyboard.press('ControlOrMeta+i')
 
     // Wait for formatting to apply
     await page.waitForTimeout(500)

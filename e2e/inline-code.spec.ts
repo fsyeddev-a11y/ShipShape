@@ -4,9 +4,6 @@ import { test, expect, Page } from './fixtures/isolated-env';
 async function createNewDocument(page: Page) {
   await page.goto('/docs');
 
-  // Wait for the page to stabilize (may auto-redirect to existing doc)
-  await page.waitForLoadState('networkidle');
-
   // Get current URL to detect change after clicking
   const currentUrl = page.url();
 
@@ -76,14 +73,17 @@ test.describe('Inline Code', () => {
     // Type some text
     await page.keyboard.type('format this');
 
+    // Click into editor to ensure focus is scoped to ProseMirror (not the title)
+    await editor.click();
+
     // Select the text (Cmd+A or Ctrl+A)
-    await page.keyboard.press('Meta+a'); // Use Meta for Mac, Control for Windows/Linux
+    await page.keyboard.press('ControlOrMeta+a'); // Cross-platform select all
 
     // Wait a moment
     await page.waitForTimeout(200);
 
     // Press Cmd+E or Ctrl+E to toggle code
-    await page.keyboard.press('Meta+e');
+    await page.keyboard.press('ControlOrMeta+e');
 
     // Wait for formatting
     await page.waitForTimeout(300);
@@ -94,7 +94,7 @@ test.describe('Inline Code', () => {
     await expect(codeElement).toContainText('format this');
 
     // Press Cmd+E again to remove formatting
-    await page.keyboard.press('Meta+e');
+    await page.keyboard.press('ControlOrMeta+e');
     await page.waitForTimeout(300);
 
     // Code element should be gone (text should still exist)

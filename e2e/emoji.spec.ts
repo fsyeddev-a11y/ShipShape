@@ -158,43 +158,40 @@ test.describe('Emoji Picker', () => {
 
     // Insert emoji
     await page.keyboard.type(':fire')
-    await page.waitForTimeout(500)
 
     const picker = page.locator('[role="listbox"], .emoji-picker, [data-emoji-picker]').first()
-    if (await picker.isVisible({ timeout: 3000 })) {
-      await page.keyboard.press('Enter')
-      await page.waitForTimeout(500)
+    await expect(picker).toBeVisible({ timeout: 5000 })
+    await page.keyboard.press('Enter')
 
-      // Get emoji content
-      const originalContent = await editor.textContent()
-      const hasEmoji = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(originalContent || '')
+    // Verify emoji is in the editor
+    const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u
+    await expect(async () => {
+      const content = await editor.textContent()
+      expect(emojiRegex.test(content || '')).toBe(true)
+    }).toPass({ timeout: 5000 })
 
-      if (hasEmoji) {
-        // Get current URL
-        const docUrl = page.url()
+    // Poll API until content is persisted to DB
+    const docId = page.url().match(/documents\/([a-f0-9-]+)/)?.[1]
+    await expect(async () => {
+      const res = await page.request.get(`/api/documents/${docId}`)
+      const body = await res.json()
+      expect(JSON.stringify(body.content)).toMatch(emojiRegex)
+    }).toPass({ timeout: 15000, intervals: [500, 1000, 2000, 3000] })
 
-        // Wait for auto-save
-        await page.waitForTimeout(2000)
+    // Navigate away and back
+    const docUrl = page.url()
+    await page.goto('/docs')
+    await expect(page.getByRole('heading', { name: 'Documents' })).toBeVisible({ timeout: 5000 })
 
-        // Navigate away and back
-        await page.goto('/docs')
-        await expect(page.getByRole('heading', { name: 'Documents' })).toBeVisible({ timeout: 5000 })
+    // Navigate back to document
+    await page.goto(docUrl)
+    await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 5000 })
 
-        // Navigate back to document
-        await page.goto(docUrl)
-        await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 5000 })
-        await page.waitForTimeout(1000)
-
-        // Verify emoji persisted
-        const restoredContent = await editor.textContent()
-        const stillHasEmoji = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(restoredContent || '')
-        expect(stillHasEmoji).toBeTruthy()
-      } else {
-        expect(true).toBe(false) // Element not found, test cannot continue
-      }
-    } else {
-      expect(true).toBe(false) // Element not found, test cannot continue
-    }
+    // Verify emoji persisted
+    await expect(async () => {
+      const restoredContent = await editor.textContent()
+      expect(emojiRegex.test(restoredContent || '')).toBe(true)
+    }).toPass({ timeout: 10000 })
   })
 
   test('can navigate emoji picker with arrow keys', async ({ page }) => {

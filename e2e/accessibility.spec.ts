@@ -13,7 +13,7 @@ async function login(page: import('@playwright/test').Page) {
 test.describe('Accessibility - axe-core audit', () => {
   test('login page has no critical accessibility violations', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -33,7 +33,7 @@ test.describe('Accessibility - axe-core audit', () => {
 
   test('main app shell has no critical accessibility violations', async ({ page }) => {
     await login(page)
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -60,7 +60,7 @@ test.describe('Accessibility - axe-core audit', () => {
       // Try finding by href
       await page.goto('/docs')
     }
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -86,7 +86,7 @@ test.describe('Accessibility - axe-core audit', () => {
     } else {
       await page.goto('/programs')
     }
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -110,9 +110,8 @@ test.describe('Accessibility - Keyboard Navigation', () => {
     await page.waitForLoadState('domcontentloaded')
 
     // Email field should be auto-focused on page load
-    // Wait a bit for React to render and autofocus to take effect
     const emailField = page.locator('#email')
-    await page.waitForTimeout(200)
+    await expect(emailField).toBeVisible({ timeout: 5000 })
 
     // If not already focused, click to focus (autofocus can be unreliable in tests)
     if (!await emailField.evaluate(el => el === document.activeElement)) {
@@ -154,8 +153,7 @@ test.describe('Accessibility - Keyboard Navigation', () => {
     await expect(page).not.toHaveURL('/login', { timeout: 5000 })
 
     // After login, verify we can tab through the app
-    await page.waitForLoadState('domcontentloaded')
-    await page.waitForTimeout(500) // Give UI time to settle
+    await expect(page.locator('h1, [data-testid="page-title"]').first()).toBeVisible({ timeout: 10000 })
 
     // Verify the page has focusable elements by checking they exist
     const focusableSelector = 'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -219,7 +217,7 @@ test.describe('Accessibility - Screen Reader Announcements', () => {
     await page.getByRole('button', { name: 'Sign in', exact: true }).click()
 
     // Wait for error to appear
-    await page.waitForTimeout(1000)
+    await expect(page.locator('[role="alert"], [aria-live="polite"], [aria-live="assertive"]').first()).toBeVisible({ timeout: 5000 })
 
     // Check for aria-live region or alert role
     const alertOrLive = page.locator('[role="alert"], [aria-live="polite"], [aria-live="assertive"]')

@@ -167,7 +167,7 @@ test.describe('Syntax Highlighting - Code Blocks', () => {
     // Get current URL
     const docUrl = page.url()
 
-    // Wait for auto-save
+    // Wait for auto-save to persist
     await page.waitForTimeout(2000)
 
     // Navigate away and back
@@ -196,25 +196,25 @@ test.describe('Syntax Highlighting - Code Blocks', () => {
     await page.keyboard.type('```javascript')
     await page.keyboard.press('Enter')
     await page.keyboard.type('const a = 1;')
-    await page.waitForTimeout(300)
 
-    // Navigate after code block using arrow keys and Cmd+End to go to document end
-    await page.keyboard.press('Meta+End')
-    await page.keyboard.press('Enter')
-    await page.waitForTimeout(300)
+    // Wait for first code block to render
+    await expect(editor.locator('.code-block-lowlight').first()).toBeVisible({ timeout: 5000 })
+
+    // Move cursor to end of line, then ArrowDown to exit code block
+    await page.keyboard.press('End')
+    await page.keyboard.press('ArrowDown')
 
     // Create second code block
     await page.keyboard.type('```python')
     await page.keyboard.press('Enter')
     await page.keyboard.type('b = 2')
-    await page.waitForTimeout(500)
 
-    // Verify code blocks exist - use code-block-lowlight class
+    // Wait for second code block to render
+    await expect(editor.locator('.code-block-lowlight').nth(1)).toBeVisible({ timeout: 5000 })
+
+    // Verify code blocks exist
     const codeBlocks = editor.locator('.code-block-lowlight')
-    const count = await codeBlocks.count()
-
-    // May have 1 or 2 code blocks depending on behavior
-    expect(count).toBeGreaterThanOrEqual(1)
+    await expect(codeBlocks).toHaveCount(2, { timeout: 5000 })
 
     // Verify at least the first code block has content
     const firstBlock = await codeBlocks.first().locator('code').textContent()

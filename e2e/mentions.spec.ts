@@ -4,9 +4,6 @@ import { test, expect, Page } from './fixtures/isolated-env';
 async function createNewDocument(page: Page) {
   await page.goto('/docs');
 
-  // Wait for the page to stabilize (may auto-redirect to existing doc)
-  await page.waitForLoadState('networkidle');
-
   // Get current URL to detect change after clicking
   const currentUrl = page.url();
 
@@ -236,19 +233,16 @@ test.describe('Mentions', () => {
     // Type @ followed by gibberish
     await page.keyboard.type('@zzzznonexistent12345');
 
-    // Wait a moment for API response
-    await page.waitForTimeout(500);
-
-    // Either show "No results" or have no options
+    // Wait for popup to appear
     const popup = page.locator('[role="listbox"]');
     await expect(popup).toBeVisible({ timeout: 5000 });
 
-    // Either no options or "No results found" text
-    const noResultsText = page.getByText('No results');
-    const optionCount = await page.locator('[role="option"]').count();
-
-    // Either we have no options or we have "No results" text
-    expect(optionCount === 0 || await noResultsText.isVisible()).toBeTruthy();
+    // Retry until filtering completes: either no options or "No results" text
+    await expect(async () => {
+      const optionCount = await page.locator('[role="option"]').count();
+      const noResults = await page.getByText('No results').isVisible();
+      expect(optionCount === 0 || noResults).toBe(true);
+    }).toPass({ timeout: 5000 });
   });
 
   test('should navigate to person on click', async ({ page }) => {

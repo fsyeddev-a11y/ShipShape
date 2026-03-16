@@ -4,9 +4,6 @@ import { test, expect, Page } from './fixtures/isolated-env';
 async function createNewDocument(page: Page) {
   await page.goto('/docs');
 
-  // Wait for the page to stabilize (may auto-redirect to existing doc)
-  await page.waitForLoadState('networkidle');
-
   // Get current URL to detect change after clicking
   const currentUrl = page.url();
 
@@ -89,23 +86,24 @@ test.describe('Tables', () => {
     const initialRows = await table.locator('tr').count();
     expect(initialRows).toBeGreaterThan(0);
 
-    // Click in a cell to focus table
+    // Left-click in a cell to position TipTap cursor inside the table (needed for isInTable())
     const firstCell = table.locator('td, th').first();
     await firstCell.click();
-
-    // Right-click to open context menu (or use table controls)
-    await firstCell.click({ button: 'right' });
     await page.waitForTimeout(300);
 
-    // Look for "Add row" option (or use keyboard shortcut if available)
-    const addRowOption = page.getByText(/Add row|Insert row/i);
-    if (await addRowOption.isVisible({ timeout: 2000 }).catch(() => false)) {
+    // Right-click to open context menu
+    await firstCell.click({ button: 'right' });
+
+    // Wait for context menu to appear
+    const addRowOption = page.getByRole('menuitem', { name: /Add row/i });
+    if (await addRowOption.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addRowOption.click();
-      await page.waitForTimeout(300);
 
       // Verify row was added
-      const newRows = await table.locator('tr').count();
-      expect(newRows).toBeGreaterThan(initialRows);
+      await expect(async () => {
+        const newRows = await table.locator('tr').count();
+        expect(newRows).toBeGreaterThan(initialRows);
+      }).toPass({ timeout: 5000 });
     }
   });
 
@@ -436,8 +434,13 @@ test.describe('Tables', () => {
     await firstCell.click();
     await page.keyboard.type('Persistent data');
 
-    // Wait for Yjs sync
-    await page.waitForTimeout(2000);
+    // Poll API until content is persisted to DB
+    const docId = page.url().match(/documents\/([a-f0-9-]+)/)?.[1];
+    await expect(async () => {
+      const res = await page.request.get(`/api/documents/${docId}`);
+      const body = await res.json();
+      expect(JSON.stringify(body.content)).toContain('Persistent data');
+    }).toPass({ timeout: 15000, intervals: [500, 1000, 2000, 3000] });
 
     // Hard refresh
     await page.reload();

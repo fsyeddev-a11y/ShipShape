@@ -18,8 +18,6 @@ test.describe('Issues - Bulk Operations', () => {
     await page.getByRole('button', { name: 'List view' }).click()
     await expect(page.locator('th').filter({ hasText: 'Status' })).toBeVisible({ timeout: 5000 })
 
-    // Wait for the table to stabilize
-    await page.waitForLoadState('networkidle')
   })
 
   test('can right-click to open context menu', async ({ page }) => {
@@ -27,11 +25,11 @@ test.describe('Issues - Bulk Operations', () => {
     const row = page.locator('tbody tr').first()
     await expect(row).toBeVisible({ timeout: 10000 })
 
-    // Wait for row to be stable before clicking
-    await page.waitForTimeout(1000)
-
-    // Right-click to open context menu
-    await row.click({ button: 'right' })
+    // Right-click with retry — ensures React event handlers are attached
+    await expect(async () => {
+      await row.click({ button: 'right' })
+      await expect(page.getByRole('menu', { name: 'Context menu' })).toBeVisible({ timeout: 1000 })
+    }).toPass({ timeout: 5000 })
 
     // Context menu should appear (use specific aria-label to distinguish from submenus)
     const contextMenu = page.getByRole('menu', { name: 'Context menu' })
@@ -49,10 +47,7 @@ test.describe('Issues - Bulk Operations', () => {
     // Go back to issues list
     await page.goto('/issues')
     await page.getByRole('button', { name: 'List view' }).click()
-    await page.waitForLoadState('networkidle')
-
-    // Wait for row to be stable
-    await page.waitForTimeout(1000)
+    await expect(page.locator('th').filter({ hasText: 'Status' })).toBeVisible({ timeout: 5000 })
 
     // Get count before archive
     const rowsBefore = await page.locator('tbody tr').count()
@@ -81,14 +76,14 @@ test.describe('Issues - Bulk Operations', () => {
     // Wait for row to be visible and stable
     const row = page.locator('tbody tr').first()
     await expect(row).toBeVisible({ timeout: 10000 })
-    await page.waitForTimeout(1000)
 
-    // Right-click to open context menu
-    await row.click({ button: 'right' })
+    // Right-click with retry — ensures React event handlers are attached
+    await expect(async () => {
+      await row.click({ button: 'right' })
+      await expect(page.getByRole('menu', { name: 'Context menu' })).toBeVisible({ timeout: 1000 })
+    }).toPass({ timeout: 5000 })
 
-    // Context menu should appear with status change option (use specific aria-label)
     const contextMenu = page.getByRole('menu', { name: 'Context menu' })
-    await expect(contextMenu).toBeVisible({ timeout: 3000 })
 
     // Look for "Change Status" option specifically
     await expect(contextMenu.getByRole('menuitem', { name: 'Change Status' })).toBeVisible()
