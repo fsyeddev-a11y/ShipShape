@@ -50,12 +50,15 @@ web/          React + Vite frontend
 shared/       TypeScript types shared between packages
 e2e/          Playwright E2E tests (869 tests)
 docs/
-  audit/      Original audit baselines (7 categories)
-  specs/      Implementation specs (phase2/, phase3/, futurePhase/)
-  category/
+  benchmark/
+    phase1-audit/   Original audit baselines (7 categories)
+    phase2/         Phase 2 benchmark results + comparison
+    phase3/         Phase 3 benchmark results
+  specs/
     implemented/    Per-category implementation documentation
-    benchmark/      Phase 2 benchmark results
-    benchmark/phase3/  Phase 3 benchmark results
+    phase2/         Phase 2 fix specifications
+    phase3/         Phase 3 test fix specifications
+    futurePhase/    Future work specifications
 ```
 
 ### Documentation
@@ -63,9 +66,9 @@ docs/
 | Document | Description |
 |----------|-------------|
 | [Final Audit Report](docs/final-audit-report.md) | Comprehensive before/after analysis for all 7 categories |
-| [Phase 2 Audit Comparison](docs/category/benchmark/phase2-audit-comparison.md) | Side-by-side baseline vs post-fix metrics |
+| [Phase 2 Audit Comparison](docs/benchmark/phase2/phase2-audit-comparison.md) | Side-by-side baseline vs post-fix metrics |
 | [Spec Tracker](docs/specs/spec-tracker.md) | Status of all specs across Phase 2 and Phase 3 |
-| [Original Audit Report](docs/audit/audit-report.md) | Baseline findings and methodology |
+| [Original Audit Report](docs/benchmark/phase1-audit/audit-report.md) | Baseline findings and methodology |
 
 ### Branching Strategy
 
@@ -506,11 +509,11 @@ Each shard runs ~109 tests with its own PostgreSQL container. Total CI time: ~5 
 | Resource | Path |
 |----------|------|
 | Final Audit Report | [docs/final-audit-report.md](docs/final-audit-report.md) |
-| Phase 2 Comparison | [docs/category/benchmark/phase2-audit-comparison.md](docs/category/benchmark/phase2-audit-comparison.md) |
-| Phase 3 Benchmarks | [docs/category/benchmark/phase3/](docs/category/benchmark/phase3/) |
+| Phase 2 Comparison | [docs/benchmark/phase2/phase2-audit-comparison.md](docs/benchmark/phase2/phase2-audit-comparison.md) |
+| Phase 3 Benchmarks | [docs/benchmark/phase3/](docs/benchmark/phase3/) |
 | Spec Tracker | [docs/specs/spec-tracker.md](docs/specs/spec-tracker.md) |
-| Original Audit | [docs/audit/audit-report.md](docs/audit/audit-report.md) |
+| Original Audit | [docs/benchmark/phase1-audit/audit-report.md](docs/benchmark/phase1-audit/audit-report.md) |
 | Phase 2 Specs | [docs/specs/phase2/](docs/specs/phase2/) |
 | Phase 3 Specs | [docs/specs/phase3/](docs/specs/phase3/) |
 | Future Phase Specs | [docs/specs/futurePhase/](docs/specs/futurePhase/) |
-| Implementation Docs | [docs/category/implemented/](docs/category/implemented/) |
+| Implementation Docs | [docs/specs/implemented/](docs/specs/implemented/) |

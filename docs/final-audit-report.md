@@ -35,7 +35,7 @@ All improvements are tied to specific commits with structured messages documenti
 
 ### Baseline Measurement
 
-All baseline measurements were taken from the original `master` branch against a seeded PostgreSQL database containing production-representative data (501 documents, 218 issues, 22 users, 35 sprints). The original audit files are archived in `docs/audit/01-*.md` through `docs/audit/07-*.md`.
+All baseline measurements were taken from the original `master` branch against a seeded PostgreSQL database containing production-representative data (501 documents, 218 issues, 22 users, 35 sprints). The original audit files are archived in `docs/benchmark/phase1-audit/01-*.md` through `docs/benchmark/phase1-audit/07-*.md`.
 
 ### Branching Strategy
 
