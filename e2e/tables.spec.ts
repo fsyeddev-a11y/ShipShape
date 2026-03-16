@@ -86,15 +86,16 @@ test.describe('Tables', () => {
     const initialRows = await table.locator('tr').count();
     expect(initialRows).toBeGreaterThan(0);
 
-    // Click in a cell to focus table
+    // Left-click in a cell to position TipTap cursor inside the table (needed for isInTable())
     const firstCell = table.locator('td, th').first();
     await firstCell.click();
+    await page.waitForTimeout(300);
 
     // Right-click to open context menu
     await firstCell.click({ button: 'right' });
 
     // Wait for context menu to appear
-    const addRowOption = page.getByText(/Add row|Insert row/i);
+    const addRowOption = page.getByRole('menuitem', { name: /Add row/i });
     await expect(addRowOption).toBeVisible({ timeout: 5000 });
     await addRowOption.click();
 
