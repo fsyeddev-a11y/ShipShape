@@ -40,8 +40,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Build shared package
+        run: pnpm build:shared
+
+      - name: Run database migrations
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ship_test
 
       - name: Run API unit tests
         run: pnpm test
@@ -50,6 +55,9 @@ jobs:
 
       - name: Run web unit tests
         run: pnpm --filter @ship/web test
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Run E2E tests
         run: pnpm test:e2e
