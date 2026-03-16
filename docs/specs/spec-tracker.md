@@ -155,6 +155,29 @@ Fixes for the remaining hard failures after investigation revealed simpler root 
 | F3.12 | [Code Block Exit Test](phase3/fix-code-block-exit-test.md) | `syntax-highlighting.spec.ts` | Test bug — Meta+End doesn't exit code blocks, use ArrowDown | Small — ~3 lines | Todo |
 | F3.13 | [Table Context Menu](phase3/fix-table-context-menu-feature.md) | `Editor.tsx` + new `TableContextMenu.tsx` | App feature — build custom right-click menu using existing ContextMenu | Low-Medium — ~80 lines | Todo |
 
+## Phase 3.4 — Flaky Test Fixes (16 specs)
+
+All test-only fixes (except one secondary app code fix). Addresses the 16 flaky tests from CI run.
+
+| # | Spec | File(s) | Functional Area | Complexity | Status |
+|---|------|---------|----------------|-----------|--------|
+| F3.14 | [Data Integrity Images](phase3/fix-flaky-data-integrity-images.md) | `data-integrity.spec.ts`, `SlashCommands.tsx` | Editor — Images | Medium | Todo |
+| F3.15 | [Feedback Pagination](phase3/fix-flaky-feedback-pagination.md) | `feedback-consolidation.spec.ts` | Feedback — Data Migration | Small | Todo |
+| F3.16 | [Images Alt Text](phase3/fix-flaky-images-alt-text.md) | `images.spec.ts` | Editor — Images | Small | Todo |
+| F3.17 | [Issue Estimates Response](phase3/fix-flaky-issue-estimates-response-race.md) | `issue-estimates.spec.ts` | Issues — Estimates | Small | Todo |
+| F3.18 | [Bulk Ops Archive Retry](phase3/fix-flaky-bulk-ops-archive-retry.md) | `issues-bulk-operations.spec.ts` | Issues — Bulk Operations | Small | Todo |
+| F3.19 | [My-Week Retro Persistence](phase3/fix-flaky-my-week-retro-persistence.md) | `my-week-stale-data.spec.ts` | My Week — Yjs Persistence | Medium | Todo |
+| F3.20 | [Performance Images](phase3/fix-flaky-performance-images.md) | `performance.spec.ts` | Editor — Performance | Medium | Todo |
+| F3.21 | [Program Week UX Scroll](phase3/fix-flaky-program-week-ux-scroll.md) | `program-mode-week-ux.spec.ts` | Programs — Weeks Tab | Small | Todo |
+| F3.22 | [Project Weeks Sidebar Scope](phase3/fix-flaky-project-weeks-sidebar-scope.md) | `project-weeks.spec.ts` | Projects — Weeks Tab | Small | Todo |
+| F3.23 | [Project Weeks Nav Timeout](phase3/fix-flaky-project-weeks-nav-timeout.md) | `project-weeks.spec.ts` | Projects — Weeks Tab | Small | Todo |
+| F3.24 | [Race Conditions Save Timing](phase3/fix-flaky-race-conditions-save-timing.md) | `race-conditions.spec.ts` | Editor — Autosave | Small | Todo |
+| F3.25 | [Session Timeout Redirect](phase3/fix-flaky-session-timeout-redirect.md) | `session-timeout.spec.ts` | Auth — Session Management | Small | Todo |
+| F3.26 | [Heatmap Retro Seed Data](phase3/fix-flaky-heatmap-retro-seed-data.md) | `isolated-env.ts`, `status-overview-heatmap.spec.ts` | Teams — Status Overview | Medium | Todo |
+| F3.27 | [Team Mode Filter](phase3/fix-flaky-team-mode-filter.md) | `team-mode.spec.ts` | Teams — Assignments | Small | Todo |
+| F3.28 | [Tables Context Menu Selector](phase3/fix-flaky-tables-context-menu-selector.md) | `tables.spec.ts` | Editor — Tables | Small | Todo |
+| F3.29 | [Tables Persist Hardening](phase3/fix-flaky-tables-persist-hardening.md) | `tables.spec.ts` | Editor — Tables | Small | Todo |
+
 ---
 
 # Future Phase — Optimizations & Test Gaps (Planned)
