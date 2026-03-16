@@ -213,24 +213,10 @@ test.describe('Table of Contents (TOC)', () => {
     let tocText = await toc.textContent()
     expect(tocText).toContain('Original Title')
 
-    // Use purely keyboard-based approach to avoid inline comment overlay issues
-    // The cursor is currently in the editor after TOC insertion
-    // First dismiss any tooltips/menus
-    await page.keyboard.press('Escape')
-    await page.waitForTimeout(300)
-
-    // Go to the very start of the document (above TOC, into heading)
-    await page.keyboard.press('Meta+ArrowUp')
-    await page.waitForTimeout(100)
-    // Select the entire first line (the heading text)
-    await page.keyboard.press('Shift+Meta+ArrowDown')
-    await page.waitForTimeout(100)
-    // Now type replacement - but Shift+Meta+ArrowDown may select too much
-    // Instead, select just to end of current line
-    await page.keyboard.press('Meta+ArrowUp')  // Reset to start
-    await page.waitForTimeout(100)
-    await page.keyboard.press('Meta+Shift+ArrowRight')  // Select to end of line
-    await page.waitForTimeout(100)
+    // Click directly on the heading element, then triple-click to select its text
+    const headingToRename = page.locator('.ProseMirror h1').filter({ hasText: 'Original Title' })
+    await headingToRename.click({ clickCount: 3 })
+    await page.waitForTimeout(200)
     await page.keyboard.type('New Title')
     await page.waitForTimeout(1000)
 
