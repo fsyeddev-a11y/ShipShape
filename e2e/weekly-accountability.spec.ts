@@ -458,24 +458,23 @@ test.describe('Project Allocation Grid API', () => {
     });
     const plan = await planResponse.json();
 
-    // Get allocation grid
-    const gridResponse = await page.request.get(
-      `${apiServer.url}/api/weekly-plans/project-allocation-grid/${projectId}`
-    );
+    // Retry allocation grid API call until planId is populated (handles transaction commit timing)
+    const gridUrl = `${apiServer.url}/api/weekly-plans/project-allocation-grid/${projectId}`;
+    await expect(async () => {
+      const gridResponse = await page.request.get(gridUrl);
+      expect(gridResponse.ok(), `Expected 200 OK but got ${gridResponse.status()}`).toBe(true);
+      const grid = await gridResponse.json();
 
-    expect(gridResponse.ok(), `Expected 200 OK but got ${gridResponse.status()}`).toBe(true);
-    const grid = await gridResponse.json();
+      // Find person in grid
+      const personInGrid = grid.people.find((p: { id: string }) => p.id === personId);
+      expect(personInGrid, 'Person should appear in allocation grid').toBeTruthy();
 
-    // Find person in grid
-    const personInGrid = grid.people.find((p: { id: string }) => p.id === personId);
-    expect(personInGrid, 'Person should appear in allocation grid').toBeTruthy();
-
-    // Person should have week 1 data
-    const week1Data = personInGrid.weeks[1];
-    if (week1Data) {
+      // Person should have week 1 data with planId populated
+      const week1Data = personInGrid.weeks[1];
+      expect(week1Data, 'Week 1 data should exist').toBeTruthy();
       expect(week1Data.isAllocated).toBe(true);
       expect(week1Data.planId).toBe(plan.id);
-    }
+    }).toPass({ timeout: 10000 });
   });
 
   test('Allocation grid returns 404 for non-existent project', async ({ page, apiServer }) => {
