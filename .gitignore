@@ -115,4 +115,5 @@ vendor/
 # Vite PWA dev artifacts
 web/dev-dist/
 
-extracted_text.txt
+extracted_text.txtFleetGraph_PRD.pdf
+docs/fleetgraph/FleetGraph_PRD.pdf
