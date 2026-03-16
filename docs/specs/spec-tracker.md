@@ -116,6 +116,20 @@ All specs derived from the [audit report](../audit/audit-report.md) and human au
 | F2.9 | [Syntax Highlighting Timing](phase3/fix-e2e-syntax-highlighting-timing.md) | `syntax-highlighting.spec.ts` | `waitForTimeout(300/500)` between code block creation | Todo |
 | F2.10 | [Tables Silent Pass + Persistence](phase3/fix-e2e-tables-silent-pass-persistence.md) | `tables.spec.ts` | Silent-pass `if` guard + `waitForTimeout(2000)` for Yjs save | Todo |
 
+## Phase 3.2 — CI Test Results & Remaining Issues
+
+Post-fix CI run results (GitHub Actions, 4 workers, 23.8m): [Full results](phase3/phase3-2-test-results.md)
+
+| Metric | Before Phase 3 | After Phase 3 | Change |
+|--------|---------------|---------------|--------|
+| Passed | 845 | 838 | -7 |
+| Flaky | 14 | 16 | +2 |
+| Failed | 10 | 15 | +5 |
+| Previously flaky now clean | — | 9 | — |
+| Silent passes exposed as failures | — | 3 | — |
+
+**9 of 14 previously flaky tests now pass cleanly.** 3 new failures are from intentionally stricter assertions exposing real bugs. Remaining failures/flaky are timing-related CI issues.
+
 ---
 
 # Future Phase — Optimizations & Test Gaps (Planned)
