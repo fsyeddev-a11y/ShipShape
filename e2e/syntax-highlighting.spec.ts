@@ -180,7 +180,7 @@ test.describe('Syntax Highlighting - Code Blocks', () => {
 
     // Verify code block and content persisted - use code-block-lowlight class
     const codeBlock = page.locator('.ProseMirror .code-block-lowlight').first()
-    await expect(codeBlock).toBeVisible({ timeout: 10000 })
+    await expect(codeBlock).toBeVisible({ timeout: 3000 })
 
     const content = await codeBlock.locator('code').textContent()
     expect(content).toContain(uniqueCode)
