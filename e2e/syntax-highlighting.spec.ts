@@ -200,9 +200,9 @@ test.describe('Syntax Highlighting - Code Blocks', () => {
     // Wait for first code block to render
     await expect(editor.locator('.code-block-lowlight').first()).toBeVisible({ timeout: 5000 })
 
-    // Navigate after code block using arrow keys and Cmd+End to go to document end
-    await page.keyboard.press('Meta+End')
-    await page.keyboard.press('Enter')
+    // Move cursor to end of line, then ArrowDown to exit code block
+    await page.keyboard.press('End')
+    await page.keyboard.press('ArrowDown')
 
     // Create second code block
     await page.keyboard.type('```python')
