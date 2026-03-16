@@ -178,6 +178,22 @@ All test-only fixes (except one secondary app code fix). Addresses the 16 flaky 
 | F3.28 | [Tables Context Menu Selector](phase3/fix-flaky-tables-context-menu-selector.md) | `tables.spec.ts` | Editor — Tables | Small | Todo |
 | F3.29 | [Tables Persist Hardening](phase3/fix-flaky-tables-persist-hardening.md) | `tables.spec.ts` | Editor — Tables | Small | Todo |
 
+## Phase 3.5 — CI Failure Fix-the-Fix (9 specs)
+
+Fixes for Phase 3 changes that didn't work on CI, plus one regression introduced by our changes.
+
+| # | Spec | File(s) | Issue | Complexity | Status |
+|---|------|---------|-------|-----------|--------|
+| F3.30 | [Axe Target Size Regression](phase3/fix-axe-target-size-regression.md) | `App.tsx` | F3.11 tabIndex made 6px-tall `<li>` a focusable touch target, violating WCAG 2.5.8 | Small | Todo |
+| F3.31 | [Backlinks Mention Deletion](phase3/fix-backlinks-mention-deletion.md) | `backlinks.spec.ts` | Meta+A doesn't work on Linux CI — use ControlOrMeta+a | Small | Todo |
+| F3.32 | [Formatting Focus CI](phase3/fix-formatting-focus-ci.md) | `edge-cases.spec.ts`, `inline-code.spec.ts` | Meta+a/b/i/e sends wrong modifier on Linux — use ControlOrMeta | Small | Todo |
+| F3.33 | [Inline Comments Shortcut CI](phase3/fix-inline-comments-shortcut-ci.md) | `inline-comments.spec.ts` | Meta+Shift+m sends wrong modifier on Linux — use ControlOrMeta | Small | Todo |
+| F3.34 | [TOC Tippy Tooltip Intercept](phase3/fix-toc-tippy-tooltip-intercept.md) | `toc.spec.ts` | Tippy tooltip overlay blocks triple-click on heading | Small | Todo |
+| F3.35 | [Tables Context Menu CI](phase3/fix-tables-context-menu-ci.md) | `tables.spec.ts`, `Editor.tsx` | Context menu not appearing — cursor not in table before right-click | Small | Todo |
+| F3.36 | [Team Mode Expand Filter](phase3/fix-team-mode-expand-filter.md) | `team-mode.spec.ts` | Same as F3.27 — expand test also needs "everyone" filter | Small | Todo |
+| F3.37 | [Weekly Accountability planId](phase3/fix-weekly-accountability-planid.md) | `weekly-accountability.spec.ts` | planId null in grid response — transaction commit timing | Small | Todo |
+| F3.38 | [Syntax Highlighting Persist](phase3/fix-syntax-highlighting-persist.md) | `syntax-highlighting.spec.ts` | Code block content not persisting — needs API polling | Small | Todo |
+
 ---
 
 # Future Phase — Optimizations & Test Gaps (Planned)
