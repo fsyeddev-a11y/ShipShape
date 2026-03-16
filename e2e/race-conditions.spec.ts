@@ -334,13 +334,13 @@ test.describe('Race Conditions - Network and Offline', () => {
   })
 
   test('slow network does not cause duplicate operations', async ({ page, context }) => {
-    // Simulate slow network
+    await createNewDocument(page)
+
+    // Simulate slow network (after document creation so setup isn't delayed)
     await context.route('**/*', async (route) => {
       await new Promise(resolve => setTimeout(resolve, 500))
       await route.continue()
     })
-
-    await createNewDocument(page)
 
     const editor = page.locator('.ProseMirror')
     await editor.click()
