@@ -61,6 +61,7 @@ export function DocumentTreeItem({
 }: DocumentTreeItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isFocusedWithin, setIsFocusedWithin] = useState(false);
 
   const isActive = activeDocumentId === document.id;
   const hasChildren = document.children.length > 0;
@@ -71,6 +72,9 @@ export function DocumentTreeItem({
       aria-expanded={hasChildren ? isOpen : undefined}
       aria-selected={isActive}
       data-testid="doc-item"
+      tabIndex={0}
+      onFocus={() => setIsFocusedWithin(true)}
+      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsFocusedWithin(false); }}
     >
       <div
         className={cn(
@@ -116,7 +120,7 @@ export function DocumentTreeItem({
               type="button"
               className={cn(
                 'flex-shrink-0 p-0.5 rounded hover:bg-red-100 hover:text-red-600 transition-opacity',
-                isHovered ? 'opacity-100' : 'opacity-0'
+                (isHovered || isFocusedWithin) ? 'opacity-100' : 'opacity-0'
               )}
               onClick={(e) => {
                 e.preventDefault();
@@ -149,7 +153,7 @@ export function DocumentTreeItem({
             type="button"
             className={cn(
               'flex-shrink-0 p-0.5 rounded hover:bg-border/50 transition-opacity',
-              isHovered ? 'opacity-100' : 'opacity-50'
+              (isHovered || isFocusedWithin) ? 'opacity-100' : 'opacity-50'
             )}
             onClick={() => onCreateChild(document.id)}
             aria-label="Add sub-document"
