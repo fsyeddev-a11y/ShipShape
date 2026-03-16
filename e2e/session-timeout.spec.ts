@@ -636,21 +636,25 @@ test.describe('Extend Session API', () => {
     const extendCalls: string[] = [];
     await page.route('**/api/auth/extend-session', async (route) => {
       extendCalls.push(route.request().url());
+      // Get the fake clock's current time from the page context
+      // so the response timestamps align with the fake clock, not the real clock
+      const fakeNow = await page.evaluate(() => Date.now());
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
           success: true,
           data: {
-            expiresAt: new Date(Date.now() + SESSION_TIMEOUT_MS).toISOString(),
-            lastActivity: new Date().toISOString(),
+            expiresAt: new Date(fakeNow + SESSION_TIMEOUT_MS).toISOString(),
+            lastActivity: new Date(fakeNow).toISOString(),
           },
         }),
       });
     });
 
-    // Advance to warning
-    await page.clock.runFor(SESSION_TIMEOUT_MS - WARNING_THRESHOLD_MS);
+    // Advance to warning — use fastForward to skip to the target time
+    // without firing intermediate callbacks that could cause premature timeout
+    await page.clock.fastForward(SESSION_TIMEOUT_MS - WARNING_THRESHOLD_MS);
 
     const modal = page.getByRole('alertdialog');
     await expect(modal).toBeVisible({ timeout: 5000 });
