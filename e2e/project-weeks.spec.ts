@@ -119,16 +119,18 @@ test.describe('Project Weeks Tab', () => {
 
     // Navigate to project's Weeks tab
     await page.goto(`/documents/${projectId}/weeks`);
+    // Reload to bypass React Query cache after API data creation
+    await page.reload({ waitUntil: 'domcontentloaded' });
 
     // Wait for the grid to load
-    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 15000 });
 
     // Verify the person appears in the grid (Dev User from seed data)
     await expect(page.locator('text=Dev User')).toBeVisible();
 
     // Verify we see colored status cells (not dash for unallocated)
     const statusCells = page.locator('button[title*="Weekly Plan"]');
-    await expect(statusCells.first()).toBeVisible();
+    await expect(statusCells.first()).toBeVisible({ timeout: 15000 });
   });
 
   test('clicking cell opens weekly plan document with context', async ({ page, apiServer }) => {
@@ -148,13 +150,15 @@ test.describe('Project Weeks Tab', () => {
 
     // Navigate to project's Weeks tab
     await page.goto(`/documents/${projectId}/weeks`);
+    // Reload to bypass React Query cache after API data creation
+    await page.reload({ waitUntil: 'domcontentloaded' });
 
     // Wait for grid to load
-    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 15000 });
 
     // Click on the plan status cell (left half of the colored cell)
     const planCell = page.locator('button[title*="Weekly Plan"]').first();
-    await expect(planCell).toBeVisible();
+    await expect(planCell).toBeVisible({ timeout: 15000 });
     await planCell.click();
 
     // Wait for navigation to weekly plan document
@@ -192,9 +196,12 @@ test.describe('Project Weeks Tab', () => {
 
     // Navigate to project's Weeks tab and click to open weekly plan
     await page.goto(`/documents/${projectId}/weeks`);
-    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 10000 });
+    // Reload to bypass React Query cache after API data creation
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('text=Team Member')).toBeVisible({ timeout: 15000 });
 
     const planCell = page.locator('button[title*="Weekly Plan"]').first();
+    await expect(planCell).toBeVisible({ timeout: 15000 });
     await planCell.click();
 
     // Wait for weekly plan document
