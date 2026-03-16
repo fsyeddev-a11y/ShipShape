@@ -822,12 +822,10 @@ function DocumentTreeItem({
       aria-selected={isActive}
       data-tree-item
       data-testid="doc-item"
-      tabIndex={-1}
     >
       <div
-        tabIndex={0}
         className={cn(
-          'group flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors',
+          'flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors group',
           isActive
             ? 'bg-border/50 text-foreground'
             : 'text-muted hover:bg-border/30 hover:text-foreground',
@@ -867,7 +865,7 @@ function DocumentTreeItem({
           ref={menuButtonRef}
           type="button"
           onClick={handleMenuButtonClick}
-          className="p-0.5 rounded hover:bg-border/50 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 transition-opacity"
+          className="p-0.5 rounded hover:bg-border/50 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
           aria-label="Document actions"
           aria-haspopup="menu"
         >
