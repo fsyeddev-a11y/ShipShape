@@ -73,6 +73,9 @@ test.describe('Inline Code', () => {
     // Type some text
     await page.keyboard.type('format this');
 
+    // Click into editor to ensure focus is scoped to ProseMirror (not the title)
+    await editor.click();
+
     // Select the text (Cmd+A or Ctrl+A)
     await page.keyboard.press('Meta+a'); // Use Meta for Mac, Control for Windows/Linux
 

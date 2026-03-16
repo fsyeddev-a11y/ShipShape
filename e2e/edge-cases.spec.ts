@@ -349,6 +349,9 @@ test.describe('Edge Cases', () => {
     // Type text
     await page.keyboard.type('Bold and italic text')
 
+    // Click into editor to ensure focus is scoped to ProseMirror (not the title)
+    await editor.click()
+
     // Select all
     await page.keyboard.press('Meta+a')
 
