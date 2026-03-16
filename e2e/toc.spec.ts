@@ -213,9 +213,16 @@ test.describe('Table of Contents (TOC)', () => {
     let tocText = await toc.textContent()
     expect(tocText).toContain('Original Title')
 
-    // Click directly on the heading element, then triple-click to select its text
-    const headingToRename = page.locator('.ProseMirror h1').filter({ hasText: 'Original Title' })
-    await headingToRename.click({ clickCount: 3 })
+    // Programmatically select the heading text to avoid tippy tooltip interception on CI
+    await page.evaluate(() => {
+      const heading = document.querySelector('.ProseMirror h1')
+      if (!heading || !heading.firstChild) return
+      const range = document.createRange()
+      range.selectNodeContents(heading)
+      const sel = window.getSelection()
+      sel?.removeAllRanges()
+      sel?.addRange(range)
+    })
     await page.waitForTimeout(200)
     await page.keyboard.type('New Title')
     await page.waitForTimeout(1000)
