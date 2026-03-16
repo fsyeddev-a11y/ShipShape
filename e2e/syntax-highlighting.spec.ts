@@ -164,11 +164,16 @@ test.describe('Syntax Highlighting - Code Blocks', () => {
     await page.keyboard.type(uniqueCode)
     await page.waitForTimeout(500)
 
-    // Get current URL
+    // Get current URL and extract docId
     const docUrl = page.url()
+    const docId = docUrl.match(/documents\/([a-f0-9-]+)/)?.[1]
 
-    // Wait for auto-save
-    await page.waitForTimeout(2000)
+    // Poll API until content is persisted to DB (replaces unreliable waitForTimeout)
+    await expect(async () => {
+      const res = await page.request.get(`/api/documents/${docId}`)
+      const body = await res.json()
+      expect(JSON.stringify(body.content)).toContain(uniqueCode)
+    }).toPass({ timeout: 15000, intervals: [500, 1000, 2000, 3000] })
 
     // Navigate away and back
     await page.goto('/docs')
