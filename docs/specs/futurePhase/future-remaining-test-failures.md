@@ -22,6 +22,21 @@ Tests that require app code changes, major refactoring, or complex timing fixes 
 
 **Effort:** Medium. Each hover-only control needs a corresponding focus trigger. Could be a systematic CSS fix or per-component JavaScript changes.
 
+### Table Context Menu — App Feature Gap (2 tests)
+- tables.spec.ts:69 — should add rows to table
+- tables.spec.ts:371 — should delete entire table
+
+**Root cause:** The app has no custom right-click context menu for tables. No "Add row", "Insert row", "Delete table", or "Remove table" UI exists anywhere. Tests assumed functionality that was never built. Verified by manually right-clicking a table cell in the running app — only the browser's native context menu appears.
+
+**Effort:** Medium. Requires building a custom TipTap table context menu component with row/column add/delete operations, or adding table toolbar buttons.
+
+### Code Block Input Rule — App Bug (1 test)
+- syntax-highlighting.spec.ts:189 — can create multiple code blocks in same document
+
+**Root cause:** TipTap's backtick input rule (` ``` `) only triggers for the first code block in a document. After exiting the first code block (even successfully via ArrowDown), typing ` ```python ` in a new paragraph does not create a second code block. Verified in headless Playwright and the real E2E test runner — only 1 `.code-block-lowlight` element is ever created. The slash command `/` → "Code Block" works as an alternative.
+
+**Effort:** Low-Medium. Likely a TipTap input rule configuration issue — the regex may not match when there's already a code block node in the document. May need a custom input rule or a workaround in the editor configuration.
+
 ## Flaky Tests Requiring Investigation
 
 ### Timing-Dependent Tests (CI-only flakiness)

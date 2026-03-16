@@ -134,15 +134,15 @@ Post-fix CI run results (GitHub Actions, 4 workers, 23.8m): [Full results](phase
 
 | # | Spec | File(s) | Root Cause | Status |
 |---|------|---------|------------|--------|
-| F3.1 | [selectText Keyboard Shortcut](phase3/fix-selecttext-keyboard-shortcut.md) | `inline-comments.spec.ts` | selectText helper assumes bubble menu; keyboard shortcut test doesn't use it | Todo |
-| F3.2 | [Code Block Exit Strategy](phase3/fix-code-block-exit-strategy.md) | `syntax-highlighting.spec.ts` | Meta+End doesn't exit code block on CI Linux | Todo |
-| F3.3 | [Table Context Menu](phase3/fix-table-context-menu.md) | `tables.spec.ts` | Context menu text doesn't match "Add row"/"Delete table" selectors | Todo |
-| F3.4 | [TOC Heading Rename](phase3/fix-toc-heading-rename.md) | `toc.spec.ts` | Fragile keyboard selection lands in wrong node | Todo |
-| F3.5 | [Backlinks Sync Timing](phase3/fix-backlinks-sync-timing.md) | `backlinks.spec.ts` | Link-sync POST swallowed by .catch(), stale data | Todo |
-| F3.6 | [Meta+A Selects Title](phase3/fix-meta-a-selects-title.md) | `edge-cases.spec.ts`, `inline-code.spec.ts` | Meta+A selects title textarea + editor, formatting fails | Todo |
-| F3.7 | [Race Conditions Route Timing](phase3/fix-race-conditions-route-timing.md) | `race-conditions.spec.ts` | Network delay route installed before doc creation | Todo |
-| F3.8 | [Session Timeout Fake Clock](phase3/fix-session-timeout-fake-clock.md) | `session-timeout.spec.ts` | Mock response timestamps misaligned with fake clock | Todo |
-| F3.9 | [Project Weeks Strict Locator](phase3/fix-project-weeks-strict-locator.md) | `project-weeks.spec.ts` | Locator resolves to 2 elements (sidebar + properties) | Todo |
+| # | Spec | File(s) | Root Cause | Verified | Status |
+|---|------|---------|------------|----------|--------|
+| F3.1 | [selectText Keyboard Shortcut](phase3/fix-selecttext-keyboard-shortcut.md) | `inline-comments.spec.ts` | selectText helper assumes bubble menu; keyboard shortcut test doesn't use it | Test bug — shortcut works in app | Todo |
+| F3.4 | [TOC Heading Rename](phase3/fix-toc-heading-rename.md) | `toc.spec.ts` | Fragile keyboard selection lands in wrong node | Test bug — TOC updates correctly in app | Todo |
+| F3.5 | [Backlinks Sync Timing](phase3/fix-backlinks-sync-timing.md) | `backlinks.spec.ts` | Link-sync POST swallowed by .catch(), stale data | Test bug — backlinks sync correctly in app | Todo |
+| F3.6 | [Meta+A Selects Title](phase3/fix-meta-a-selects-title.md) | `edge-cases.spec.ts`, `inline-code.spec.ts` | Test sends keys to wrong element (title not editor) | Test bug — formatting works in app | Todo |
+| F3.7 | [Race Conditions Route Timing](phase3/fix-race-conditions-route-timing.md) | `race-conditions.spec.ts` | Network delay route installed before doc creation | Test bug — app handles slow network fine | Todo |
+| F3.8 | [Session Timeout Fake Clock](phase3/fix-session-timeout-fake-clock.md) | `session-timeout.spec.ts` | Mock response timestamps misaligned with fake clock | Skipped — requires fake timers | Todo |
+| F3.9 | [Project Weeks Strict Locator](phase3/fix-project-weeks-strict-locator.md) | `project-weeks.spec.ts` | Locator resolves to 2 elements (sidebar + properties) | Test bug — strict mode ambiguity | Todo |
 
 ---
 
@@ -158,6 +158,8 @@ Additional optimizations, test coverage gaps, and issues requiring app code chan
 | F.4 | [Throttle last_used_at UPDATE](futurePhase/future-throttle-last-used.md) | Throttle to once per minute (auth overhead at scale) | Cat 3/4 | Planned |
 | F.5 | [Multi-User Collaboration Tests](futurePhase/future-multi-user-collab-tests.md) | E2E tests for real-time sync: body, title, concurrent edits, presence, reconnect | Cat 5 | Planned |
 | F.6 | [Remaining Test Failures](futurePhase/future-remaining-test-failures.md) | 6 hard failures (bulk-selection focus, a11y hover) + 13 flaky CI timing issues needing app code | Cat 5 | Planned |
+| F.7 | [Table Context Menu](phase3/fix-table-context-menu.md) | App has no custom right-click context menu for tables — no add row/delete table UI exists. Verified manually. | Cat 6 | Planned |
+| F.8 | [Code Block Input Rule](phase3/fix-code-block-exit-strategy.md) | TipTap backtick input rule doesn't trigger for a second code block in the same document. Verified in headless + test runner. | Cat 6 | Planned |
 
 ---
 
