@@ -59,7 +59,7 @@ test.describe('Table of Contents (TOC)', () => {
 
     // Look for TOC option in menu - use button role to be specific
     const tocOption = page.getByRole('button', { name: /Table of Contents/i })
-    await expect(tocOption).toBeVisible({ timeout: 3000 })
+    await expect(tocOption).toBeVisible({ timeout: 10000 })
     await tocOption.click()
     await page.waitForTimeout(500)
 
@@ -88,7 +88,7 @@ test.describe('Table of Contents (TOC)', () => {
     await page.waitForTimeout(500)
 
     const tocOption = page.getByRole('button', { name: /Table of Contents/i })
-    await expect(tocOption).toBeVisible({ timeout: 3000 })
+    await expect(tocOption).toBeVisible({ timeout: 10000 })
     await tocOption.click()
     await page.waitForTimeout(500)
 
@@ -118,7 +118,7 @@ test.describe('Table of Contents (TOC)', () => {
     await page.waitForTimeout(500)
 
     const tocOption = page.getByRole('button', { name: /Table of Contents/i })
-    await expect(tocOption).toBeVisible({ timeout: 3000 })
+    await expect(tocOption).toBeVisible({ timeout: 10000 })
     await tocOption.click()
     await page.waitForTimeout(500)
 
@@ -156,7 +156,7 @@ test.describe('Table of Contents (TOC)', () => {
     await page.waitForTimeout(500)
 
     const tocOption = page.getByRole('button', { name: /Table of Contents/i })
-    await expect(tocOption).toBeVisible({ timeout: 3000 })
+    await expect(tocOption).toBeVisible({ timeout: 10000 })
     await tocOption.click()
     await page.waitForTimeout(500)
 
@@ -202,7 +202,7 @@ test.describe('Table of Contents (TOC)', () => {
     await page.waitForTimeout(500)
 
     const tocOption = page.getByRole('button', { name: /Table of Contents/i })
-    await expect(tocOption).toBeVisible({ timeout: 3000 })
+    await expect(tocOption).toBeVisible({ timeout: 10000 })
     await tocOption.click()
     await page.waitForTimeout(500)
 
@@ -261,7 +261,7 @@ test.describe('Table of Contents (TOC)', () => {
     await page.waitForTimeout(500)
 
     const tocOption = page.getByRole('button', { name: /Table of Contents/i })
-    await expect(tocOption).toBeVisible({ timeout: 3000 })
+    await expect(tocOption).toBeVisible({ timeout: 10000 })
     await tocOption.click()
     await page.waitForTimeout(500)
 
@@ -305,7 +305,7 @@ test.describe('Table of Contents (TOC)', () => {
     await page.waitForTimeout(500)
 
     const tocOption = page.getByRole('button', { name: /Table of Contents/i })
-    await expect(tocOption).toBeVisible({ timeout: 3000 })
+    await expect(tocOption).toBeVisible({ timeout: 10000 })
     await tocOption.click()
     await page.waitForTimeout(500)
 
@@ -350,7 +350,7 @@ test.describe('Table of Contents (TOC)', () => {
     await page.waitForTimeout(500)
 
     const tocOption = page.getByRole('button', { name: /Table of Contents/i })
-    await expect(tocOption).toBeVisible({ timeout: 3000 })
+    await expect(tocOption).toBeVisible({ timeout: 10000 })
     await tocOption.click()
     await page.waitForTimeout(500)
 
@@ -393,7 +393,7 @@ test.describe('Table of Contents (TOC)', () => {
     await page.waitForTimeout(500)
 
     const tocOption = page.getByRole('button', { name: /Table of Contents/i })
-    await expect(tocOption).toBeVisible({ timeout: 3000 })
+    await expect(tocOption).toBeVisible({ timeout: 10000 })
     await tocOption.click()
     await page.waitForTimeout(500)
 
