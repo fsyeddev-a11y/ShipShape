@@ -118,9 +118,9 @@ All specs derived from the [audit report](../audit/audit-report.md) and human au
 
 ---
 
-# Future Phase — Performance Optimizations (Planned)
+# Future Phase — Optimizations & Test Gaps (Planned)
 
-Additional optimizations identified during audit but deferred from Phase 2.
+Additional optimizations and test coverage gaps identified during Phase 2/3 work.
 
 | # | Spec | Summary | Category | Status |
 |---|------|---------|----------|--------|
@@ -128,6 +128,7 @@ Additional optimizations identified during audit but deferred from Phase 2.
 | F.2 | [Issues Sequential Query Batch](futurePhase/future-issues-query-batch.md) | Parallelize issues + associations queries | Cat 3 | Planned |
 | F.3 | [API Token Hash Index](futurePhase/future-token-hash-index.md) | Add index on api_tokens.token_hash | Cat 3/4 | Planned |
 | F.4 | [Throttle last_used_at UPDATE](futurePhase/future-throttle-last-used.md) | Throttle to once per minute (auth overhead at scale) | Cat 3/4 | Planned |
+| F.5 | [Multi-User Collaboration Tests](futurePhase/future-multi-user-collab-tests.md) | E2E tests for real-time sync: body, title, concurrent edits, presence, reconnect | Cat 5 | Planned |
 
 ---
 
