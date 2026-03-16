@@ -176,7 +176,7 @@ test.describe('Project Weeks Tab', () => {
     // Verify Properties sidebar shows project name as a link
     // Label is "Project" (without colon)
     await expect(page.getByText('Project', { exact: true })).toBeVisible();
-    await expect(page.locator('a:has-text("Click Test Project")')).toBeVisible();
+    await expect(page.getByLabel('Document properties').locator('a:has-text("Click Test Project")')).toBeVisible();
   });
 
   test('project link in Properties sidebar navigates back to project', async ({ page, apiServer }) => {
@@ -207,8 +207,9 @@ test.describe('Project Weeks Tab', () => {
     // Wait for weekly plan document
     await expect(page.locator('text=Weekly Plan')).toBeVisible({ timeout: 10000 });
 
-    // Click the project link to navigate back
-    const projectLink = page.locator('a:has-text("Navigation Test Project")');
+    // Click the project link in the Properties sidebar to navigate back
+    const propertiesSidebar = page.getByLabel('Document properties');
+    const projectLink = propertiesSidebar.locator('a:has-text("Navigation Test Project")');
     await expect(projectLink).toBeVisible();
     await projectLink.click();
 
