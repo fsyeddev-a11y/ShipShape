@@ -34,6 +34,8 @@ import { TableOfContentsExtension } from './editor/TableOfContents';
 import { HypothesisBlockExtension } from './editor/HypothesisBlockExtension';
 import { CommentMark } from './editor/CommentMark';
 import { CommentDisplayExtension } from './editor/CommentDisplay';
+import { ContextMenu, ContextMenuItem } from '@/components/ui/ContextMenu';
+import { TableContextMenuItems } from './editor/TableContextMenu';
 import { AIScoringDisplayExtension } from './editor/AIScoringDisplay';
 import { PlanReferenceBlockExtension } from './editor/PlanReferenceBlock';
 import { useCommentsQuery, useCreateComment, useUpdateComment } from '@/hooks/useCommentsQuery';
@@ -580,6 +582,20 @@ export function Editor({
   const createComment = useCreateComment(documentId);
   const updateComment = useUpdateComment(documentId);
   const [pendingCommentId, setPendingCommentId] = useState<string | null>(null);
+  const [editorContextMenu, setEditorContextMenu] = useState<{
+    x: number;
+    y: number;
+    type: 'comment' | 'table';
+  } | null>(null);
+
+  function isInTable(): boolean {
+    if (!editor) return false;
+    const { $from } = editor.state.selection;
+    for (let d = $from.depth; d > 0; d--) {
+      if ($from.node(d).type.name === 'table') return true;
+    }
+    return false;
+  }
 
   // Handle adding a new comment (called from keyboard shortcut, bubble menu, context menu)
   const handleAddComment = useCallback((commentId: string) => {
@@ -1013,35 +1029,43 @@ export function Editor({
               className="tiptap-wrapper"
               data-testid="tiptap-editor"
               onContextMenu={(e) => {
-                if (!editor || editor.state.selection.empty) return;
-                e.preventDefault();
-                const menu = document.createElement('div');
-                menu.className = 'comment-context-menu';
-                menu.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;z-index:9999;background:rgb(39,39,42);border:1px solid rgb(63,63,70);border-radius:6px;padding:4px 0;box-shadow:0 4px 12px rgba(0,0,0,0.4);`;
-                const btn = document.createElement('button');
-                btn.textContent = 'Add Comment';
-                btn.style.cssText = 'display:block;width:100%;padding:6px 12px;background:none;border:none;color:rgb(228,228,231);font-size:13px;cursor:pointer;text-align:left;';
-                btn.onmouseenter = () => { btn.style.background = 'rgb(63,63,70)'; };
-                btn.onmouseleave = () => { btn.style.background = 'none'; };
-                btn.onclick = () => {
-                  editor.commands.addComment();
-                  menu.remove();
-                };
-                menu.appendChild(btn);
-                document.body.appendChild(menu);
-                const dismiss = (ev: MouseEvent) => {
-                  if (!menu.contains(ev.target as Node)) {
-                    menu.remove();
-                    document.removeEventListener('mousedown', dismiss);
-                  }
-                };
-                setTimeout(() => document.addEventListener('mousedown', dismiss), 0);
+                if (!editor) return;
+                if (isInTable()) {
+                  e.preventDefault();
+                  setEditorContextMenu({ x: e.clientX, y: e.clientY, type: 'table' });
+                  return;
+                }
+                if (!editor.state.selection.empty) {
+                  e.preventDefault();
+                  setEditorContextMenu({ x: e.clientX, y: e.clientY, type: 'comment' });
+                }
               }}
             >
               <ErrorBoundary>
                 <EditorContent editor={editor} />
               </ErrorBoundary>
             </div>
+            {editorContextMenu && editor && (
+              <ContextMenu
+                x={editorContextMenu.x}
+                y={editorContextMenu.y}
+                onClose={() => setEditorContextMenu(null)}
+              >
+                {editorContextMenu.type === 'table' ? (
+                  <TableContextMenuItems
+                    editor={editor}
+                    onClose={() => setEditorContextMenu(null)}
+                  />
+                ) : (
+                  <ContextMenuItem onClick={() => {
+                    editor.commands.addComment();
+                    setEditorContextMenu(null);
+                  }}>
+                    Add Comment
+                  </ContextMenuItem>
+                )}
+              </ContextMenu>
+            )}
             {editor && !editor.isDestroyed && (
               <BubbleMenu
                 editor={editor}
