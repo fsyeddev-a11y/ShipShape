@@ -1,5 +1,8 @@
 # Spec: Fix Table Context Menu Selectors
 
+## Functional Area
+Editor — Tables
+
 ## Problem
 tables.spec.ts tests 69 and 371 right-click table cells expecting a context menu with "Add row"/"Insert row" and "Delete table"/"Remove table" text. The TipTap table extension may use different menu item text, or the custom context menu may not appear (browser native menu appears instead). After removing the silent-pass guard, this is now a hard failure.
 

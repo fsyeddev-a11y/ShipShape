@@ -1,5 +1,9 @@
 # Spec F.1: Parallelize Dashboard Sequential Queries (Future Phase)
 
+## Functional Area
+
+API — Dashboard Performance
+
 **Category:** 3 — API Response Time
 **Priority:** Future
 **Audit Finding:** Category 3, Finding 4

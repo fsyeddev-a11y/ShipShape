@@ -1,5 +1,8 @@
 # Spec: Fix `document-tabs.test.ts` — Sprint Documents Have Tabs
 
+## Functional Area
+Web — Document Tabs
+
 ## Problem
 
 `web/src/lib/document-tabs.test.ts` has 2 failing assertions because sprint tabs were added to `documentTabConfigs` but the tests still expect sprint documents to have no tabs.

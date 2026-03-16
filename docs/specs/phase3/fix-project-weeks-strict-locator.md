@@ -1,5 +1,8 @@
 # Spec: Fix Project Weeks Strict Locator Ambiguity
 
+## Functional Area
+Projects — Weeks Tab
+
 ## Problem
 project-weeks.spec.ts tests 136 and 182 use `page.locator('a:has-text("Click Test Project")')` which resolves to 2 elements — one in the sidebar project list and one in the Properties sidebar. Playwright's strict mode throws when a locator matches multiple elements.
 

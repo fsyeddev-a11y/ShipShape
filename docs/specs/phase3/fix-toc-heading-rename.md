@@ -1,5 +1,8 @@
 # Spec: Fix TOC Heading Rename Selection Strategy
 
+## Functional Area
+Editor — Table of Contents
+
 ## Problem
 toc.spec.ts:189 uses `Meta+ArrowUp` then `Meta+Shift+ArrowRight` to select a heading's text for replacement. This keyboard navigation is fragile — `Meta+ArrowUp` may land in the TOC node instead of the heading, and `Meta+Shift+ArrowRight` may not select the full heading text on all platforms.
 

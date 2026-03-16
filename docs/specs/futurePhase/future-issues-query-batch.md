@@ -1,5 +1,9 @@
 # Spec F.2: Parallelize Issues + Associations Queries (Future Phase)
 
+## Functional Area
+
+API — Issues Query Performance
+
 **Category:** 3 — API Response Time
 **Priority:** Future
 **Audit Finding:** Category 3 (from previous human audit)

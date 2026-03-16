@@ -1,5 +1,8 @@
 # Spec: Fix Issues Bulk Operations E2E Test Flakiness
 
+## Functional Area
+Issues — Bulk Operations
+
 ## Problem
 
 `e2e/issues-bulk-operations.spec.ts` (3 tests) is flaky due to hard-coded `waitForTimeout(1000)` calls before right-click context menu interactions. The tests right-click on issue table rows to open a context menu, but use a 1-second fixed delay to "wait for the table to stabilize" before clicking.

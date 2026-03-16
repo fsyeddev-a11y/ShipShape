@@ -1,5 +1,8 @@
 # Spec: Fix `tables` — Remove silent-pass guard, replace persistence delay with API polling
 
+## Functional Area
+Editor — Tables
+
 ## Problem
 Two issues in `e2e/tables.spec.ts`:
 

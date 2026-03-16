@@ -1,5 +1,8 @@
 # Spec: Fix selectText Helper Keyboard Shortcut Compatibility
 
+## Functional Area
+Editor — Inline Comments
+
 ## Problem
 The `selectText` helper in inline-comments.spec.ts was changed to wait for the Comment bubble menu button after selection. But the test at line 98 uses `Meta+Shift+m` keyboard shortcut instead of the bubble menu — the Comment button may not appear since the shortcut triggers directly. The helper shouldn't assume all callers need the bubble menu.
 

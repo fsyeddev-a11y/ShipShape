@@ -1,5 +1,9 @@
 # Future Spec: Remaining Test Failures & Flaky Tests
 
+## Functional Areas
+
+Covers: Editor (focus management, tables, code blocks), Accessibility (hover/focus controls), Auth (session management), Teams (assignments), Issues (bulk operations, estimates), My Week (Yjs persistence), Projects (weeks tab), Feedback (data migration)
+
 Tests that require app code changes, major refactoring, or complex timing fixes beyond simple test adjustments.
 
 ## Hard Failures Requiring App Code Changes

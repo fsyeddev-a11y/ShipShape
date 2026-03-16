@@ -1,5 +1,9 @@
 # Spec: Multi-User Real-Time Collaboration E2E Tests
 
+## Functional Area
+
+Editor — Real-Time Collaboration
+
 ## Problem
 
 ShipShape is a real-time collaboration app using Yjs + WebSocket for document editing, but no E2E test verifies that two users can edit the same document simultaneously and see each other's changes. The existing multi-user tests only cover permissions (private-documents.spec.ts) and backlink updates (backlinks.spec.ts) — none test the core collaboration flow.

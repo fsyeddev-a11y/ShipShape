@@ -1,5 +1,8 @@
 # Spec: Fix Accessibility E2E Test Flakiness
 
+## Functional Area
+Accessibility — WCAG Compliance
+
 ## Problem
 
 Two accessibility E2E test files are flaky:

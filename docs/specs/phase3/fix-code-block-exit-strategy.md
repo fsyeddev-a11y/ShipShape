@@ -1,5 +1,8 @@
 # Spec: Fix Code Block Exit Strategy in Syntax Highlighting Tests
 
+## Functional Area
+Editor — Code Blocks
+
 ## Problem
 syntax-highlighting.spec.ts:189 uses `Meta+End` to exit a code block before creating a second one. On CI Linux, `Meta+End` doesn't reliably move the cursor out of the code block node — the second ```python gets typed as content inside the first block. Our stricter `toHaveCount(2)` assertion correctly catches this (previously hidden by `toBeGreaterThanOrEqual(1)`).
 

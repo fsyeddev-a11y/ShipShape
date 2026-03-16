@@ -1,5 +1,8 @@
 # Spec: Fix `mentions` — Replace snapshot assertions and `waitForTimeout`
 
+## Functional Area
+Editor — Mentions
+
 ## Problem
 `e2e/mentions.spec.ts:230` ("empty search shows no results message") types `@zzzznonexistent12345` and then uses `waitForTimeout(500)` before checking results. The assertion uses `page.locator('[role="option"]').count()` — a one-shot DOM read that doesn't retry. If the popup is still filtering when the count is read, it may see stale results (count > 0) while "No results" isn't yet visible. The compound `if/else` assertion (`optionCount === 0 || await noResultsText.isVisible()`) is a snapshot check, not a retrying assertion.
 

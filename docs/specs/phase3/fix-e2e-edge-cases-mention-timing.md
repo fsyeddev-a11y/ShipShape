@@ -1,5 +1,8 @@
 # Spec: Fix `edge-cases` — Replace snapshot `isVisible()` and `waitForTimeout` in mention loop
 
+## Functional Area
+Editor — Mentions
+
 ## Problem
 `e2e/edge-cases.spec.ts:221` ("handles many mentions in one document") inserts mentions in a loop. Each iteration types `@`, waits for `[role="listbox"]`, then uses `if (await firstOption.isVisible())` — a point-in-time snapshot check — to decide whether to click. If the option appears 1ms after the check, it's missed, leaving a bare `@` in the editor. The `waitForTimeout(300)` between iterations may not be enough for the mention node to render and the editor to return to a clean state.
 

@@ -1,5 +1,8 @@
 # Spec: Fix `syntax-highlighting` — Replace `waitForTimeout` with code block waits
 
+## Functional Area
+Editor — Code Blocks
+
 ## Problem
 `e2e/syntax-highlighting.spec.ts:189` ("can create multiple code blocks in same document") uses `waitForTimeout(300)` (lines 199, 204) and `waitForTimeout(500)` (line 210) between creating code blocks. The `Meta+End` keyboard shortcut to exit the first code block may not work reliably, and there's no verification that the cursor actually left the code block before typing the next markdown fence. If the cursor stays inside the first code block, the second ` ```python ` gets typed as code content instead of triggering a new block.
 

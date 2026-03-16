@@ -1,5 +1,8 @@
 # Spec: Fix Race Conditions Test Route Interception Timing
 
+## Functional Area
+Editor — Autosave/Network
+
 ## Problem
 race-conditions.spec.ts:336 ("slow network") installs a 500ms network delay via `context.route('**/*')` BEFORE calling `createNewDocument`. This delays all requests during document creation itself, causing the document page to fail to load or timeout. The test intends to test slow network during typing, not during document creation.
 

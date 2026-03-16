@@ -1,5 +1,8 @@
 # Spec: Fix `createNewDocument` helper — Replace `networkidle` with editor visibility
 
+## Functional Area
+Editor — Document Creation
+
 ## Problem
 The shared `createNewDocument` helper (used by 8+ test files) calls `waitForLoadState('networkidle')` after creating a document. `networkidle` waits until no network requests occur for 500ms, but ShipShape uses persistent WebSocket connections for Yjs collaboration — the page never truly reaches "network idle." This causes two failure modes: (1) the wait times out, wasting time and leaving the editor in an unknown state, or (2) a brief gap in WebSocket traffic triggers a false positive, and the test proceeds before TipTap has finished initializing. Tests that type into the editor, trigger slash commands, or interact with the toolbar then fail intermittently because the editor isn't ready.
 

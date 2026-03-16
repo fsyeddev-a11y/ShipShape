@@ -1,5 +1,8 @@
 # Spec: Fix Session Timeout Fake Clock Mismatch
 
+## Functional Area
+Auth — Session Management
+
 ## Problem
 session-timeout.spec.ts:629 ("Stay Logged In calls extend session") uses `page.clock.runFor()` to advance fake timers. The route mock returns a response with `expiresAt` based on `Date.now()` which is the real clock, not the fake clock. This mismatch means the app thinks the session is already expired when it processes the response. Also, `runFor()` may advance too fast, causing the warning modal to appear and immediately timeout before the test can click "Stay Logged In".
 

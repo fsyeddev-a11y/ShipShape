@@ -1,5 +1,8 @@
 # Spec: Fix `emoji` — Replace save delay with Yjs persistence polling
 
+## Functional Area
+Editor — Emoji
+
 ## Problem
 `e2e/emoji.spec.ts:153` ("emoji persists after save and reload") uses `waitForTimeout(2000)` to "wait for auto-save" before reloading the page. There's no verification that the save actually completed. If Yjs takes longer than 2s to flush to the database, the emoji isn't persisted and the reload shows an empty document. Additionally, `waitForTimeout(500)` is used after typing `/fire` for the emoji picker and `waitForTimeout(1000)` after reload — both are arbitrary delays with no condition checks.
 

@@ -1,5 +1,8 @@
 # Spec: Fix `accessibility-remediation` — Non-retrying `getAttribute` assertions
 
+## Functional Area
+Accessibility — ARIA Attributes
+
 ## Problem
 `e2e/accessibility-remediation.spec.ts:144` ("combobox has required ARIA attributes") reads ARIA attributes using `getAttribute()` then asserts on the value. `getAttribute()` is a one-shot DOM read — it doesn't retry. If the combobox renders before its ARIA attributes are attached (common with React's async rendering), `getAttribute` returns `null` and the test fails. The subsequent selector `#${ariaControls}` becomes `#null`, which never matches.
 

@@ -1,5 +1,8 @@
 # Spec: Fix Project Weeks E2E Test Flakiness
 
+## Functional Area
+Projects — Weeks Tab
+
 ## Problem
 
 `e2e/project-weeks.spec.ts` (5 tests: 3 UI + 2 API) is flaky because tests create data via API, then immediately navigate to the UI and assert the data is visible. The React Query cache may serve stale data or the server-side query may not reflect the just-created record.

@@ -1,5 +1,8 @@
 # Spec: Fix Meta+A Selecting Title Instead of Editor Content
 
+## Functional Area
+Editor — Text Formatting
+
 ## Problem
 Two tests fail because `Meta+A` (select all) selects the document title textarea in addition to the editor content. edge-cases.spec.ts:343 ("simultaneous formatting") applies bold+italic after Meta+A, but the selection includes the title which doesn't support formatting — so `<strong>`/`<em>` aren't found. inline-code.spec.ts:66 has the same issue with `Meta+E` after `Meta+A`.
 

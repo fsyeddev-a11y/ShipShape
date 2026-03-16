@@ -1,5 +1,8 @@
 # Spec: Fix Feedback Consolidation E2E Test Flakiness
 
+## Functional Area
+Feedback — Public Form & Triage
+
 ## Problem
 
 `e2e/feedback-consolidation.spec.ts` (14 tests) is flaky due to:

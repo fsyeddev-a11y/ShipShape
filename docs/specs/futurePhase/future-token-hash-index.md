@@ -1,5 +1,9 @@
 # Spec F.3: Add Index on api_tokens.token_hash (Future Phase)
 
+## Functional Area
+
+API — Auth Token Performance
+
 **Category:** 3/4 — API Response Time / DB Query Efficiency
 **Priority:** Future
 **Audit Finding:** From previous human audit

@@ -1,5 +1,8 @@
 # Spec: Fix `inline-comments` — Replace `waitForTimeout` with element waits
 
+## Functional Area
+Editor — Inline Comments
+
 ## Problem
 `e2e/inline-comments.spec.ts:118` ("canceling a comment removes the highlight") has two timing issues: (1) `selectText` helper uses `waitForTimeout(400)` after programmatically setting a text selection — this waits for the bubble menu to appear, but 400ms may not be enough if React re-renders are slow. (2) `createDocumentWithText` helper uses `waitForTimeout(500)` to "wait for content to sync" after typing — this is a race condition if editor/Yjs sync takes longer.
 

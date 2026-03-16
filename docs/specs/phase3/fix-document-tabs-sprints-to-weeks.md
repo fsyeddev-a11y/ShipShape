@@ -1,5 +1,8 @@
 # Spec: Fix `document-tabs.test.ts` — `sprints` Renamed to `weeks`
 
+## Functional Area
+Web — Document Tabs
+
 ## Problem
 
 `web/src/lib/document-tabs.test.ts` has 5 failing assertions because the tab ID `'sprints'` was renamed to `'weeks'` in the source but tests still reference the old name.

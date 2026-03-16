@@ -1,5 +1,8 @@
 # Spec: Fix `document-tabs.test.ts` — Project Tab Order Changed
 
+## Functional Area
+Web — Document Tabs
+
 ## Problem
 
 `web/src/lib/document-tabs.test.ts` has 2 failing assertions because the project tab order changed — `'issues'` is now the first tab instead of `'details'`.

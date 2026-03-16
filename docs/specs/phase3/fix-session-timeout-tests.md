@@ -1,5 +1,8 @@
 # Spec: Fix `useSessionTimeout.test.ts` — 1 Failure
 
+## Functional Area
+Auth — Session Timeout
+
 ## Problem
 
 `web/src/hooks/useSessionTimeout.test.ts` has 1 failing test: **"does NOT call onTimeout if dismissed before 0"** (line ~146). The root cause is a missing mock.

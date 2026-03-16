@@ -1,5 +1,8 @@
 # Spec: Fix `DetailsExtension.test.ts` — 3 Failures
 
+## Functional Area
+Editor — Details Extension
+
 ## Problem
 
 `web/src/components/editor/DetailsExtension.test.ts` has 3 failing tests because the `DetailsExtension` was refactored to use a structured content model with child node types, but the tests were not updated.

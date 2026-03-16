@@ -1,5 +1,8 @@
 # Spec: Fix Weekly Accountability E2E Test Flakiness
 
+## Functional Area
+Teams — Weekly Accountability
+
 ## Problem
 
 `e2e/weekly-accountability.spec.ts` (17 tests: 6 Plan API + 4 Retro API + 3 Allocation Grid API + 4 Content Version History) is flaky due to multi-step API setup chains and document queryability timing.

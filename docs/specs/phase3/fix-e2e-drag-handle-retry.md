@@ -1,5 +1,8 @@
 # Spec: Fix `drag-handle` — Add retry logic for drag test
 
+## Functional Area
+Editor — Drag and Drop
+
 ## Problem
 `e2e/drag-handle.spec.ts:231` ("can drag first paragraph to end") uses synthetic HTML5 drag events with hardcoded `waitForTimeout(200/50/500ms)` delays between drag steps. The drag coordinates depend on `boundingBox()` which can return stale positions if the layout hasn't settled. Unlike its sibling test "can drag last paragraph to beginning" (line 247) which has retry logic (up to 3 attempts), this test has no retry — if the drag operation fails once due to timing, the test fails.
 

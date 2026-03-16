@@ -1,5 +1,8 @@
 # Spec: Fix `status-overview-heatmap` — Replace `networkidle` with DOM wait
 
+## Functional Area
+Teams — Status Overview
+
 ## Problem
 `e2e/status-overview-heatmap.spec.ts:109` ("clicking retro cell navigates to weekly retro document") uses `waitForLoadState('networkidle')` after navigating to `/team/status`. Same WebSocket issue as `createNewDocument` — the heatmap page maintains WebSocket connections that prevent network idle from ever being reached. The test races ahead before the heatmap data has loaded and rendered.
 

@@ -1,5 +1,9 @@
 # Spec F.4: Throttle last_used_at UPDATE for API Tokens (Future Phase)
 
+## Functional Area
+
+API — Auth Middleware Performance
+
 **Category:** 3/4 — API Response Time / DB Query Efficiency
 **Priority:** Future
 **Audit Finding:** From previous human audit

@@ -1,5 +1,8 @@
 # Spec: Fix Backlinks Sync Timing After Mention Deletion
 
+## Functional Area
+Editor — Backlinks/Mentions
+
 ## Problem
 backlinks.spec.ts:110 deletes a mention (via Cmd+A + Backspace), then immediately checks that the backlink is removed. The backlink removal relies on a `/links` POST that is debounced at 500ms. The test `.catch()`-es the response wait, meaning if the POST doesn't fire in time, the test proceeds with stale backlink data.
 

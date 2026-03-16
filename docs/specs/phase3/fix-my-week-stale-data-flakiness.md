@@ -1,5 +1,8 @@
 # Spec: Fix My-Week Stale Data E2E Test Flakiness
 
+## Functional Area
+My Week — Yjs Persistence
+
 ## Problem
 
 `e2e/my-week-stale-data.spec.ts` (2 tests) is **documented as known flaky** (comment at lines 10–16 of the file). The retro test fails on the first attempt but passes on retry.
