@@ -79,17 +79,17 @@ jobs:
           pnpm exec playwright install --with-deps chromium
 
       - name: Run E2E tests (shard ${{ matrix.shard }}/8)
-        run: pnpm test:e2e --shard=${{ matrix.shard }}/8
+        run: pnpm test:e2e --shard=${{ matrix.shard }}/8 --reporter=blob,github
         env:
           PLAYWRIGHT_WORKERS: 4
 
-      - name: Upload Playwright report
+      - name: Upload blob report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-shard-${{ matrix.shard }}
-          path: playwright-report/
-          retention-days: 30
+          name: blob-report-shard-${{ matrix.shard }}
+          path: blob-report/
+          retention-days: 7
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -120,18 +120,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Download all shard reports
+      - name: Download all blob reports
         uses: actions/download-artifact@v4
         with:
-          pattern: playwright-report-shard-*
-          path: all-reports
+          pattern: blob-report-shard-*
+          path: all-blob-reports
+          merge-multiple: true
 
       - name: Merge reports
-        run: pnpm exec playwright merge-reports --reporter=html ./all-reports/playwright-report-shard-*
+        run: pnpm exec playwright merge-reports --reporter=html ./all-blob-reports
 
-      - name: Upload merged report
+      - name: Upload merged HTML report
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-merged
+          name: playwright-report
           path: playwright-report/
           retention-days: 30
