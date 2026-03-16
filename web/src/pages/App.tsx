@@ -822,12 +822,12 @@ function DocumentTreeItem({
       aria-selected={isActive}
       data-tree-item
       data-testid="doc-item"
-      tabIndex={0}
-      className="group"
+      tabIndex={-1}
     >
       <div
+        tabIndex={0}
         className={cn(
-          'flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors',
+          'group flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors',
           isActive
             ? 'bg-border/50 text-foreground'
             : 'text-muted hover:bg-border/30 hover:text-foreground',
