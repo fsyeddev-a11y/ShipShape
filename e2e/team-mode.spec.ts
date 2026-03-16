@@ -378,6 +378,13 @@ test.describe('Team Mode (Phase 7)', () => {
   })
 
   test.describe('Assignments View - Collapse/Expand', () => {
+    test.beforeEach(async ({ page }) => {
+      // Force "everyone" filter mode so the Unassigned group is always visible
+      await page.addInitScript(() => {
+        localStorage.setItem('ship:allocation-filter-mode', 'everyone')
+      })
+    })
+
     test('clicking program header collapses the group', async ({ page }) => {
       await page.goto('/team/allocation?tab=assignments')
       await page.waitForLoadState('networkidle')
