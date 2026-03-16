@@ -90,20 +90,19 @@ test.describe('Tables', () => {
     const firstCell = table.locator('td, th').first();
     await firstCell.click();
 
-    // Right-click to open context menu (or use table controls)
+    // Right-click to open context menu
     await firstCell.click({ button: 'right' });
-    await page.waitForTimeout(300);
 
-    // Look for "Add row" option (or use keyboard shortcut if available)
+    // Wait for context menu to appear
     const addRowOption = page.getByText(/Add row|Insert row/i);
-    if (await addRowOption.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await addRowOption.click();
-      await page.waitForTimeout(300);
+    await expect(addRowOption).toBeVisible({ timeout: 5000 });
+    await addRowOption.click();
 
-      // Verify row was added
+    // Verify row was added
+    await expect(async () => {
       const newRows = await table.locator('tr').count();
       expect(newRows).toBeGreaterThan(initialRows);
-    }
+    }).toPass({ timeout: 5000 });
   });
 
   test('should add columns to table', async ({ page }) => {
@@ -433,8 +432,13 @@ test.describe('Tables', () => {
     await firstCell.click();
     await page.keyboard.type('Persistent data');
 
-    // Wait for Yjs sync
-    await page.waitForTimeout(2000);
+    // Poll API until content is persisted to DB
+    const docId = page.url().match(/documents\/([a-f0-9-]+)/)?.[1];
+    await expect(async () => {
+      const res = await page.request.get(`/api/documents/${docId}`);
+      const body = await res.json();
+      expect(JSON.stringify(body.content)).toContain('Persistent data');
+    }).toPass({ timeout: 15000, intervals: [500, 1000, 2000, 3000] });
 
     // Hard refresh
     await page.reload();
